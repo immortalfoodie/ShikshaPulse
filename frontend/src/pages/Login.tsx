@@ -14,10 +14,10 @@ const ICON = { state: Landmark, district: Building2, block: MapPin, headmaster: 
 function LanguageFirst() {
   const { setLang, lang } = useApp()
   return (
-    <div className="grid min-h-full place-items-center bg-paper px-6 py-12">
+    <div className="grid min-h-full place-items-center bg-paper px-4 py-8 lg:px-6 lg:py-12">
       <div className="w-full max-w-3xl">
         <div className="mb-8 flex items-center gap-3"><Mark size={44} /><div className="text-[1.5rem] font-bold text-forest">ShikshaPulse</div></div>
-        <h1 className="text-[1.9rem] font-bold leading-tight">अपनी भाषा चुनें · Choose your language</h1>
+        <h1 className="text-[1.5rem] font-bold leading-tight lg:text-[1.9rem]">अपनी भाषा चुनें · Choose your language</h1>
         <p className="mt-1 text-ink-2">மொழியைத் தேர்ந்தெடுக்கவும் · భాషను ఎంచుకోండి · ভাষা বেছে নিন · भाषा निवडा</p>
         <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3">
           {LANGS.map((l) => (
@@ -41,13 +41,13 @@ export default function Login() {
   const flow = t('login.flow').split(',')
   return (
     <div className="min-h-full bg-paper">
-      <div className="mx-auto grid max-w-6xl gap-10 px-6 py-10 lg:grid-cols-[1.1fr_1fr]">
-        <div>
-          <div className="flex items-center justify-between">
+      <div className="mx-auto grid max-w-6xl gap-8 px-4 py-6 lg:grid-cols-[1.1fr_1fr] lg:gap-10 lg:px-6 lg:py-10">
+        <div className="min-w-0">
+          <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="flex items-center gap-3"><Mark size={44} /><div className="text-[1.5rem] font-bold text-forest">ShikshaPulse</div></div>
             <LangSwitch />
           </div>
-          <h1 className="mt-10 text-[2.1rem] font-bold leading-[1.15] tracking-tight">{t('login.title')}</h1>
+          <h1 className="mt-6 text-[1.6rem] font-bold leading-[1.2] tracking-tight lg:mt-10 lg:text-[2.1rem] lg:leading-[1.15]">{t('login.title')}</h1>
           <p className="mt-4 max-w-xl text-[1.05rem] leading-relaxed text-ink-2">{t('login.text')}</p>
           <ol className="mt-8 grid max-w-xl grid-cols-3 gap-2 sm:grid-cols-6">
             {flow.map((f, i) => (
@@ -57,9 +57,9 @@ export default function Login() {
               </li>
             ))}
           </ol>
-          <p className="mt-10 text-[0.82rem] text-muted">{t('login.demo')} {t('app.translationNote')}</p>
+          <p className="mt-6 text-[0.82rem] text-muted lg:mt-10">{t('login.demo')} {t('app.translationNote')}</p>
         </div>
-        <div>
+        <div className="min-w-0">
           <h2 className="eyebrow mb-3">{t('login.signin')}</h2>
           {err ? <div className="mb-3"><ErrorBox error={err} /></div> : null}
           <div className="space-y-2.5">

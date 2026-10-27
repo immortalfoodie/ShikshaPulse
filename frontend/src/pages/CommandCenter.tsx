@@ -77,7 +77,7 @@ function ReviewList({ rows }: { rows: ChildReason[] }) {
     <Card title={t('home.review')} sub={t('home.reviewSub')} pad={false}>
       <div className="divide-y divide-line">
         {rows.map((r) => (
-          <button key={r.unit} className="grid w-full grid-cols-[8rem_6rem_1fr_auto] items-start gap-4 px-5 py-3.5 text-left transition hover:bg-sunk"
+          <button key={r.unit} className="grid w-full grid-cols-[1fr_auto_auto] items-start gap-x-3 gap-y-1.5 px-4 py-3.5 text-left transition hover:bg-sunk lg:grid-cols-[8rem_6rem_1fr_auto] lg:gap-4 lg:px-5"
             onClick={() => { setUnit({ unit_type: r.unit_type as 'block', unit: r.unit }); nav(r.unit_type === 'block' ? '/block' : '/') }}>
             <div>
               <div className="text-[1rem] font-semibold">{r.name}</div>
@@ -85,8 +85,8 @@ function ReviewList({ rows }: { rows: ChildReason[] }) {
             </div>
             <div className="pt-0.5"><Delta v={r.change_pp} /></div>
             {r.reason_items.length ? (
-              <ul className="reasons">{r.reason_items.map((x: ReasonItem, i: number) => <li key={i}>{reasonText(x)}</li>)}</ul>
-            ) : <span className="text-[0.88rem] text-muted">{t('home.noAdverse')}</span>}
+              <ul className="reasons order-last col-span-3 lg:order-none lg:col-span-1">{r.reason_items.map((x: ReasonItem, i: number) => <li key={i}>{reasonText(x)}</li>)}</ul>
+            ) : <span className="order-last col-span-3 text-[0.88rem] text-muted lg:order-none lg:col-span-1">{t('home.noAdverse')}</span>}
             {r.needs_review ? <span className="tag !border-brick/30 !bg-brick-50 !text-brick"><AlertTriangle className="h-3 w-3" /> {t('c.review')}</span> : <span />}
           </button>
         ))}
@@ -128,10 +128,10 @@ function InstinctVsEvidence({ district, blocks }: { district: string; blocks: st
           )}
           <ol className="divide-y divide-line rounded-lg border border-line">
             {ro.data.blocks.map((b) => (
-              <li key={b.block} className="grid grid-cols-[2rem_7rem_1fr_auto] items-start gap-3 px-3 py-2.5">
+              <li key={b.block} className="grid grid-cols-[2rem_1fr_auto] items-start gap-x-3 gap-y-1 px-3 py-2.5 lg:grid-cols-[2rem_7rem_1fr_auto] lg:gap-3">
                 <span className="grid h-7 w-7 place-items-center rounded-full bg-sunk text-[0.85rem] font-bold">{b.position}</span>
                 <span className="pt-0.5 font-semibold">{b.block}</span>
-                <ul className="reasons">{b.reason_items.map((x, i) => <li key={i}>{reasonText(x)}</li>)}</ul>
+                <ul className="reasons order-last col-span-2 col-start-2 lg:order-none lg:col-span-1 lg:col-start-auto">{b.reason_items.map((x, i) => <li key={i}>{reasonText(x)}</li>)}</ul>
                 {picked.includes(b.block) ? <span className="tag !text-forest"><Check className="h-3 w-3" /> {t('home.yourPick')}</span> : <span />}
               </li>
             ))}
@@ -160,7 +160,7 @@ function TileMap({ y0 }: { y0: string }) {
         {Object.entries(byD).map(([d, ts]) => (
           <div key={d}>
             <div className="mb-1 flex items-center gap-2 text-[0.78rem] font-semibold text-ink-2">{t('c.districtLabel', { d })}{d === myDistrict && !myBlock && <span className="tag !py-0 !text-forest">{t('home.yours')}</span>}</div>
-            <div className="grid grid-cols-5 gap-1.5">
+            <div className="grid grid-cols-3 gap-1.5 sm:grid-cols-5">
               {ts.map((x) => {
                 const bg = x.comparable ? divergingColor(x.change_pp) : '#e7e2d7'
                 return (

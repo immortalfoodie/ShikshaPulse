@@ -92,7 +92,7 @@ export default function RadarPage() {
           <Card title={t('radar.list', { n: schools.length })} sub={t('radar.listSub')} pad={false}>
             <div className="max-h-[78vh] divide-y divide-line overflow-y-auto">
               {schools.map((s) => (
-                <div key={s.udise_code} className="grid grid-cols-[auto_1fr_auto] items-start gap-4 px-5 py-3.5">
+                <div key={s.udise_code} className="grid grid-cols-[auto_1fr] items-start gap-x-3 gap-y-2 px-4 py-3.5 lg:grid-cols-[auto_1fr_auto] lg:gap-4 lg:px-5">
                   <input type="checkbox" className="mt-1.5 h-4 w-4 accent-[#1e4d36]" checked={sel.includes(s.udise_code)} onChange={() => toggle(s.udise_code)} aria-label={s.school_name} />
                   <div className="min-w-0">
                     <button className="text-left text-[0.98rem] font-semibold hover:underline" onClick={() => setSchool(s.udise_code)}>{s.school_name}</button>
@@ -100,7 +100,7 @@ export default function RadarPage() {
                     <ul className="reasons mt-1.5">{s.flags.map((f) => <li key={f}>{t(`r.${f}`)}</li>)}</ul>
                     {s.missing.length > 0 && <div className="mt-1 flex flex-wrap gap-1">{s.missing.map((x) => <span key={x} className="tag !text-muted"><CircleSlash className="h-3 w-3" /> {t('r.missing', { x: t(`r.x.${x}`) })}</span>)}</div>}
                   </div>
-                  <div className="text-right text-[0.84rem] tabnum">
+                  <div className="col-start-2 text-[0.84rem] tabnum lg:col-start-auto lg:text-right">
                     <span className={clsx('tag mb-1.5', s.tier === 'priority_support' ? '!border-brick/30 !bg-brick-50 !text-brick' : '!text-mustard')}>{t(`radar.tier.${s.tier}`)}</span>
                     <div>{t('m.numeracy')} {pct(s.numeracy)} <Delta v={s.numeracy_change} unit={false} /></div>
                     <div>{t('m.student_att')} {pct(s.attendance)} <Delta v={s.attendance_change} unit={false} /></div>

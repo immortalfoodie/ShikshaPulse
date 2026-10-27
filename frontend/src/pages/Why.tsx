@@ -70,7 +70,7 @@ function EvidenceGraph({ d, onSignal }: { d: Diagnosis; onSignal: (s: Signal) =>
   }, [d, onSignal, t, qText])
   return (
     <div className="h-[440px] rounded-lg border border-line bg-sunk">
-      <ReactFlow nodes={nodes} edges={edges} nodeTypes={nodeTypes} fitView fitViewOptions={{ padding: 0.06, maxZoom: 1.15 }} minZoom={0.5} proOptions={{ hideAttribution: true }} nodesDraggable={false} nodesConnectable={false} panOnScroll>
+      <ReactFlow nodes={nodes} edges={edges} nodeTypes={nodeTypes} fitView fitViewOptions={{ padding: 0.06, maxZoom: 1.15 }} minZoom={0.25} proOptions={{ hideAttribution: true }} nodesDraggable={false} nodesConnectable={false} panOnScroll>
         <Background color="#e2dacb" gap={22} />
       </ReactFlow>
     </div>

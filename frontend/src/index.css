@@ -78,3 +78,12 @@ body { background: var(--color-paper); color: var(--color-ink); font-family: var
   body { background: white; }
   .panel { border: none; }
 }
+
+/* Phones and tablets (< lg). Desktop is untouched.
+   Grid children may shrink below their content width, so charts and long words stay on screen;
+   wide tables scroll sideways inside their card instead of stretching the page. */
+@media (max-width: 1023.98px) {
+  main .grid > * { min-width: 0; }
+  main table { display: block; max-width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .h-page { font-size: 1.45rem; line-height: 1.2; }
+}

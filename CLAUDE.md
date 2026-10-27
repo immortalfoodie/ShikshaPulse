@@ -298,6 +298,28 @@ User asked for a guide that gives users the whole context: what the app is, ever
   - when renaming a menu item, the guide follows automatically
 - **Verified:** `pw-guide.js` (Temp), 6 personas × 6 languages: no untranslated keys, no unfilled placeholders, Open buttons navigate, the note shows once. pw-new 8/8, pw-i18n 15/15, 0 errors.
 
+## 7g. Mobile responsive (DONE 2026-10-27)
+User asked for a mobile-friendly UI without disturbing the desktop layout.
+- **Rule: desktop classes stay as they were, now under `lg:` (≥1024 px). Mobile styles are the unprefixed or `sm:` classes.**
+  - Verified by pixel comparison of 18 desktop pages (`pw-resp.js` with `MODE=baseline` / `MODE=after` in Temp; screenshots in `screenshots/resp/`)
+  - result: identical apart from data changes and 1/255 anti-aliasing at card corners
+- **Layout.tsx:**
+  - below lg the sidebar is a slide-in drawer (☰, backdrop, ✕; closes on navigation)
+  - compact mobile header with menu, name, Guide and Ask icons, then language and text size, then the demo-data label
+  - the mobile header is rendered only when `useIsDesktop()` (matchMedia ≥1024 px) is false, so the desktop DOM has no hidden duplicate controls; tests select "the first language select" and broke when it existed
+- **index.css `@media (max-width: 1023.98px)`:**
+  - `main .grid > * { min-width: 0 }` (charts and long words stay on screen)
+  - `main table { display:block; overflow-x:auto }` (wide tables scroll inside their card)
+  - smaller `.h-page`
+- **Per-page:**
+  - CommandCenter: attention rows and instinct rows become name | change | tag with reasons on their own line; tiles use 3 columns on phones
+  - Radar: school rows stack the metrics under the name
+  - Why: React Flow `minZoom` 0.25 so the graph fits a phone
+  - Login and the language screen: padding, headline size, min-w-0
+- **Audit:** `MODE=mobile` (390×844, measures sideways overflow) gave 0 px on all 18 pages; `MODE=mobiletall` gives tall screenshots for visual review.
+- `c.menu` key added in 6 languages.
+- **Note:** `pw-new.js` creates a review-meeting task and a CRC visit on every run. Reset the local DB after repeated runs (stop the server, delete `backend/data/warehouse.db*`).
+
 ## 8. Lessons / bugs already fixed (don't regress)
 - **Guard number regex:**
   - `NUM_RE` must parse "66.7/100" as 66.7, "45টি" as 45, and "1,16,800" as 116800 (commas are thousands separators and are stripped)
