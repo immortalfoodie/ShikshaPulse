@@ -1,0 +1,22 @@
+# Randomised evaluation scenario with heavier mess (more duplicates, name variants, gaps).
+# SYNTHETIC — NOT GOVERNMENT DATA.
+name: test_random_b
+description: Randomised placement, heavy mess (8% missing months, 6% name variants).
+seed: 99
+state: Test Pradesh (fictional)
+years: ["2022-23", "2023-24", "2024-25"]
+schools_per_block: 40
+election:
+  year_index: 2
+  months: [11, 12]
+  teacher_days_lost: [5, 11]
+mess:
+  missing_months_pct: 0.08
+  duplicate_pct: 0.03
+  name_variant_pct: 0.06
+  incomplete_rows_pct: 0.03
+randomize:
+  districts: 3
+  blocks_per_district: 5
+  effect_pool: [vacancy_rise, attendance_decline, unexplained_decline, insufficient_evidence,
+                infra_gap, improvement, methodology_change, election_disruption, none, none, none]

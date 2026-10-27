@@ -1,0 +1,1561 @@
+{
+  "generated_at": "2026-10-27 11:43:42",
+  "thresholds": {
+    "match_precision": 0.97,
+    "match_recall": 0.8,
+    "signal_recall": 0.8,
+    "false_flags_per_block": 0.1,
+    "status_accuracy": 0.8,
+    "decline_detection": 0.9,
+    "r2_heldout": 0.4,
+    "unexplained_bottom": 1.0,
+    "peer_filter": 1.0,
+    "guard_catch_rate": 1.0,
+    "fallback_grounded": 1.0
+  },
+  "scenarios": {
+    "demo_district_a": {
+      "schools": 1168,
+      "blocks": 20,
+      "ingest_seconds": 7.5,
+      "matching": {
+        "variants": 313,
+        "auto_matched": 287,
+        "correct": 287,
+        "sent_to_review": 26,
+        "precision": 1.0,
+        "recall": 0.917,
+        "review_share": 0.083,
+        "ambiguous_sent_to_review": "17/80",
+        "errors": []
+      },
+      "diagnosis": {
+        "signal_recall": 0.857,
+        "per_signal": {
+          "infrastructure": {
+            "expected": 2,
+            "detected": 1
+          },
+          "student_attendance": {
+            "expected": 2,
+            "detected": 2
+          },
+          "maths_vacancy": {
+            "expected": 3,
+            "detected": 3
+          }
+        },
+        "false_flags": 0,
+        "false_flags_per_block": 0.0,
+        "status_accuracy": 1.0,
+        "decline_detection": 1.0,
+        "blocks": [
+          {
+            "block": "Poti",
+            "status": "decline",
+            "verdict": "EXPLAINED_BY_ASSOCIATED_SIGNALS",
+            "expected": [
+              "maths_vacancy"
+            ],
+            "flagged": [
+              "maths_vacancy",
+              "teacher_attendance"
+            ],
+            "false_flags": [],
+            "status_ok": true,
+            "change_pp": -13.6
+          },
+          {
+            "block": "Sinda",
+            "status": "decline",
+            "verdict": "EXPLAINED_BY_ASSOCIATED_SIGNALS",
+            "expected": [
+              "student_attendance"
+            ],
+            "flagged": [
+              "student_attendance",
+              "teacher_attendance"
+            ],
+            "false_flags": [],
+            "status_ok": true,
+            "change_pp": -10.8
+          },
+          {
+            "block": "Kerwa",
+            "status": "unexplained",
+            "verdict": "UNEXPLAINED",
+            "expected": [],
+            "flagged": [
+              "teacher_attendance"
+            ],
+            "false_flags": [],
+            "status_ok": true,
+            "change_pp": -15.2
+          },
+          {
+            "block": "Bhanpur",
+            "status": "stable",
+            "verdict": "STABLE",
+            "expected": [],
+            "flagged": [
+              "teacher_attendance"
+            ],
+            "false_flags": [],
+            "status_ok": true,
+            "change_pp": -2.2
+          },
+          {
+            "block": "Ranjhi",
+            "status": "improving",
+            "verdict": "EXPLAINED_BY_ASSOCIATED_SIGNALS",
+            "expected": [],
+            "flagged": [],
+            "false_flags": [],
+            "status_ok": true,
+            "change_pp": 4.7
+          },
+          {
+            "block": "Alot",
+            "status": "stable",
+            "verdict": "EXPLAINED_BY_ASSOCIATED_SIGNALS",
+            "expected": [],
+            "flagged": [
+              "teacher_attendance"
+            ],
+            "false_flags": [],
+            "status_ok": true,
+            "change_pp": -5.1
+          },
+          {
+            "block": "Badnagar",
+            "status": "stable",
+            "verdict": "STABLE",
+            "expected": [],
+            "flagged": [
+              "teacher_attendance"
+            ],
+            "false_flags": [],
+            "status_ok": true,
+            "change_pp": -3.7
+          },
+          {
+            "block": "Chitrangi",
+            "status": "decline",
+            "verdict": "EXPLAINED_BY_ASSOCIATED_SIGNALS",
+            "expected": [
+              "infrastructure",
+              "maths_vacancy",
+              "student_attendance"
+            ],
+            "flagged": [
+              "maths_vacancy",
+              "student_attendance"
+            ],
+            "false_flags": [],
+            "status_ok": true,
+            "change_pp": -18.7
+          },
+          {
+            "block": "Dabra",
+            "status": "insufficient",
+            "verdict": "INSUFFICIENT_EVIDENCE",
+            "expected": [],
+            "flagged": [],
+            "false_flags": [],
+            "status_ok": true,
+            "change_pp": -9.1
+          },
+          {
+            "block": "Ganj",
+            "status": "stable",
+            "verdict": "STABLE",
+            "expected": [],
+            "flagged": [],
+            "false_flags": [],
+            "status_ok": true,
+            "change_pp": -3.5
+          },
+          {
+            "block": "Isagarh",
+            "status": "stable",
+            "verdict": "EXPLAINED_BY_ASSOCIATED_SIGNALS",
+            "expected": [],
+            "flagged": [
+              "teacher_attendance"
+            ],
+            "false_flags": [],
+            "status_ok": true,
+            "change_pp": -4.7
+          },
+          {
+            "block": "Jaora",
+            "status": "decline",
+            "verdict": "EXPLAINED_BY_ASSOCIATED_SIGNALS",
+            "expected": [
+              "infrastructure"
+            ],
+            "flagged": [
+              "infrastructure"
+            ],
+            "false_flags": [],
+            "status_ok": true,
+            "change_pp": -5.2
+          },
+          {
+            "block": "Khilchipur",
+            "status": "improving",
+            "verdict": "EXPLAINED_BY_ASSOCIATED_SIGNALS",
+            "expected": [],
+            "flagged": [],
+            "false_flags": [],
+            "status_ok": true,
+            "change_pp": 5.0
+          },
+          {
+            "block": "Lateri",
+            "status": "stable",
+            "verdict": "STABLE",
+            "expected": [],
+            "flagged": [],
+            "false_flags": [],
+            "status_ok": true,
+            "change_pp": -2.2
+          },
+          {
+            "block": "Manasa",
+            "status": "non_comparable",
+            "verdict": "NON_COMPARABLE",
+            "expected": [],
+            "flagged": [],
+            "false_flags": [],
+            "status_ok": true,
+            "change_pp": null
+          },
+          {
+            "block": "Nagda",
+            "status": "stable",
+            "verdict": "STABLE",
+            "expected": [],
+            "flagged": [
+              "teacher_attendance"
+            ],
+            "false_flags": [],
+            "status_ok": true,
+            "change_pp": -3.6
+          },
+          {
+            "block": "Pichhore",
+            "status": "stable",
+            "verdict": "STABLE",
+            "expected": [],
+            "flagged": [],
+            "false_flags": [],
+            "status_ok": true,
+            "change_pp": -1.9
+          },
+          {
+            "block": "Sironj",
+            "status": "decline",
+            "verdict": "EXPLAINED_BY_ASSOCIATED_SIGNALS",
+            "expected": [
+              "maths_vacancy"
+            ],
+            "flagged": [
+              "maths_vacancy"
+            ],
+            "false_flags": [],
+            "status_ok": true,
+            "change_pp": -13.0
+          },
+          {
+            "block": "Tonk",
+            "status": "stable",
+            "verdict": "STABLE",
+            "expected": [],
+            "flagged": [
+              "teacher_attendance"
+            ],
+            "false_flags": [],
+            "status_ok": true,
+            "change_pp": -2.5
+          },
+          {
+            "block": "Ujjaini",
+            "status": "improving",
+            "verdict": "STABLE",
+            "expected": [],
+            "flagged": [],
+            "false_flags": [],
+            "status_ok": true,
+            "change_pp": 2.4
+          }
+        ]
+      },
+      "comparability": {
+        "expected": 1,
+        "flagged": 1
+      },
+      "model": {
+        "r2_heldout": 0.658,
+        "mae_heldout": 4.94,
+        "n": 3336,
+        "validation": "Out-of-fold predictions with GroupKFold by block (no block in both train and test)",
+        "no_leakage": true,
+        "unexplained_blocks": [
+          "Kerwa"
+        ],
+        "bottom_residual_blocks": [
+          "Kerwa",
+          "Sinda",
+          "Lateri"
+        ],
+        "unexplained_bottom": 1.0
+      },
+      "peers": {
+        "election_blocks": 5,
+        "filter_respected": 5,
+        "peer_filter": 1.0
+      },
+      "guard": {
+        "adversarial_cases": [
+          {
+            "case": "invented number",
+            "caught": true
+          },
+          {
+            "case": "causal language",
+            "caught": true
+          },
+          {
+            "case": "missing citation",
+            "caught": true
+          },
+          {
+            "case": "fabricated evidence id",
+            "caught": true
+          },
+          {
+            "case": "signal labelled as fact",
+            "caught": true
+          },
+          {
+            "case": "omitted unresolved question",
+            "caught": true
+          }
+        ],
+        "guard_catch_rate": 1.0,
+        "fallback_answers": [
+          {
+            "question": "Why did numeracy fall?",
+            "passed": true,
+            "numbers": 21,
+            "unverified": []
+          },
+          {
+            "question": "Why did numeracy change in Sinda?",
+            "passed": true,
+            "numbers": 20,
+            "unverified": []
+          },
+          {
+            "question": "How did similar election-affected blocks compare with Sinda?",
+            "passed": true,
+            "numbers": 12,
+            "unverified": []
+          },
+          {
+            "question": "Which schools have both attendance decline and maths vacancies?",
+            "passed": true,
+            "numbers": 5,
+            "unverified": []
+          },
+          {
+            "question": "Show the three year trend",
+            "passed": true,
+            "numbers": 8,
+            "unverified": []
+          },
+          {
+            "question": "Which blocks had the largest decline?",
+            "passed": true,
+            "numbers": 9,
+            "unverified": []
+          },
+          {
+            "question": "How reliable is the data?",
+            "passed": true,
+            "numbers": 4,
+            "unverified": []
+          },
+          {
+            "question": "What actions are overdue?",
+            "passed": true,
+            "numbers": 10,
+            "unverified": []
+          },
+          {
+            "question": "Sinda \u092e\u0947\u0902 \u0938\u0902\u0916\u094d\u092f\u093e \u091c\u094d\u091e\u093e\u0928 \u0915\u094d\u092f\u094b\u0902 \u0917\u093f\u0930\u093e?",
+            "passed": true,
+            "numbers": 20,
+            "unverified": []
+          }
+        ],
+        "fallback_grounded": 1.0,
+        "live_llm": [
+          {
+            "question": "Why did numeracy fall?",
+            "engine": "deterministic",
+            "passed": true,
+            "attempts": 1
+          },
+          {
+            "question": "Why did numeracy change in Sinda?",
+            "engine": "deterministic",
+            "passed": true,
+            "attempts": 1
+          },
+          {
+            "question": "How did similar election-affected blocks compare with Sinda?",
+            "engine": "deterministic",
+            "passed": true,
+            "attempts": 1
+          },
+          {
+            "question": "Which schools have both attendance decline and maths vacancies?",
+            "engine": "deterministic",
+            "passed": true,
+            "attempts": 1
+          },
+          {
+            "question": "Show the three year trend",
+            "engine": "deterministic",
+            "passed": true,
+            "attempts": 1
+          }
+        ]
+      }
+    },
+    "test_random_a": {
+      "schools": 593,
+      "blocks": 15,
+      "ingest_seconds": 4.9,
+      "matching": {
+        "variants": 145,
+        "auto_matched": 137,
+        "correct": 137,
+        "sent_to_review": 8,
+        "precision": 1.0,
+        "recall": 0.945,
+        "review_share": 0.055,
+        "ambiguous_sent_to_review": "5/33",
+        "errors": []
+      },
+      "diagnosis": {
+        "signal_recall": 1.0,
+        "per_signal": {
+          "infrastructure": {
+            "expected": 3,
+            "detected": 3
+          },
+          "student_attendance": {
+            "expected": 2,
+            "detected": 2
+          },
+          "maths_vacancy": {
+            "expected": 1,
+            "detected": 1
+          }
+        },
+        "false_flags": 0,
+        "false_flags_per_block": 0.0,
+        "status_accuracy": 1.0,
+        "decline_detection": 1.0,
+        "blocks": [
+          {
+            "block": "Mehgaon",
+            "status": "decline",
+            "verdict": "EXPLAINED_BY_ASSOCIATED_SIGNALS",
+            "expected": [
+              "infrastructure"
+            ],
+            "flagged": [
+              "infrastructure"
+            ],
+            "false_flags": [],
+            "status_ok": true,
+            "change_pp": -5.5
+          },
+          {
+            "block": "Mohgaon",
+            "status": "improving",
+            "verdict": "STABLE",
+            "expected": [],
+            "flagged": [
+              "teacher_attendance"
+            ],
+            "false_flags": [],
+            "status_ok": true,
+            "change_pp": 2.0
+          },
+          {
+            "block": "Sihawal",
+            "status": "unexplained",
+            "verdict": "UNEXPLAINED",
+            "expected": [],
+            "flagged": [],
+            "false_flags": [],
+            "status_ok": true,
+            "change_pp": -15.0
+          },
+          {
+            "block": "Patharia",
+            "status": "decline",
+            "verdict": "EXPLAINED_BY_ASSOCIATED_SIGNALS",
+            "expected": [
+              "maths_vacancy"
+            ],
+            "flagged": [
+              "maths_vacancy"
+            ],
+            "false_flags": [],
+            "status_ok": true,
+            "change_pp": -10.4
+          },
+          {
+            "block": "Dhimarkheda",
+            "status": "stable",
+            "verdict": "STABLE",
+            "expected": [],
+            "flagged": [],
+            "false_flags": [],
+            "status_ok": true,
+            "change_pp": -2.3
+          },
+          {
+            "block": "Vidisha Rural",
+            "status": "stable",
+            "verdict": "STABLE",
+            "expected": [],
+            "flagged": [],
+            "false_flags": [],
+            "status_ok": true,
+            "change_pp": -3.3
+          },
+          {
+            "block": "Amla",
+            "status": "non_comparable",
+            "verdict": "NON_COMPARABLE",
+            "expected": [],
+            "flagged": [],
+            "false_flags": [],
+            "status_ok": true,
+            "change_pp": null
+          },
+          {
+            "block": "Zirnia",
+            "status": "unexplained",
+            "verdict": "UNEXPLAINED",
+            "expected": [],
+            "flagged": [],
+            "false_flags": [],
+            "status_ok": true,
+            "change_pp": -15.8
+          },
+          {
+            "block": "Hatta",
+            "status": "decline",
+            "verdict": "EXPLAINED_BY_ASSOCIATED_SIGNALS",
+            "expected": [
+              "student_attendance"
+            ],
+            "flagged": [
+              "student_attendance"
+            ],
+            "false_flags": [],
+            "status_ok": true,
+            "change_pp": -11.3
+          },
+          {
+            "block": "Etawa",
+            "status": "decline",
+            "verdict": "UNEXPLAINED",
+            "expected": [
+              "infrastructure"
+            ],
+            "flagged": [
+              "infrastructure"
+            ],
+            "false_flags": [],
+            "status_ok": true,
+            "change_pp": -6.8
+          },
+          {
+            "block": "Harrai",
+            "status": "stable",
+            "verdict": "STABLE",
+            "expected": [],
+            "flagged": [],
+            "false_flags": [],
+            "status_ok": true,
+            "change_pp": -3.9
+          },
+          {
+            "block": "Pawai",
+            "status": "decline",
+            "verdict": "EXPLAINED_BY_ASSOCIATED_SIGNALS",
+            "expected": [
+              "infrastructure"
+            ],
+            "flagged": [
+              "infrastructure"
+            ],
+            "false_flags": [],
+            "status_ok": true,
+            "change_pp": -4.3
+          },
+          {
+            "block": "Dindori",
+            "status": "stable",
+            "verdict": "STABLE",
+            "expected": [],
+            "flagged": [],
+            "false_flags": [],
+            "status_ok": true,
+            "change_pp": -2.4
+          },
+          {
+            "block": "Badi",
+            "status": "decline",
+            "verdict": "EXPLAINED_BY_ASSOCIATED_SIGNALS",
+            "expected": [
+              "student_attendance"
+            ],
+            "flagged": [
+              "student_attendance"
+            ],
+            "false_flags": [],
+            "status_ok": true,
+            "change_pp": -8.5
+          },
+          {
+            "block": "Chachaura",
+            "status": "stable",
+            "verdict": "UNEXPLAINED",
+            "expected": [],
+            "flagged": [],
+            "false_flags": [],
+            "status_ok": true,
+            "change_pp": -4.7
+          }
+        ]
+      },
+      "comparability": {
+        "expected": 1,
+        "flagged": 1
+      },
+      "model": {
+        "r2_heldout": 0.547,
+        "mae_heldout": 5.18,
+        "n": 1709,
+        "validation": "Out-of-fold predictions with GroupKFold by block (no block in both train and test)",
+        "no_leakage": true,
+        "unexplained_blocks": [
+          "Sihawal",
+          "Zirnia"
+        ],
+        "bottom_residual_blocks": [
+          "Zirnia",
+          "Sihawal",
+          "Pawai"
+        ],
+        "unexplained_bottom": 1.0
+      },
+      "peers": {
+        "election_blocks": 3,
+        "filter_respected": 3,
+        "peer_filter": 1.0
+      }
+    },
+    "test_random_b": {
+      "schools": 588,
+      "blocks": 15,
+      "ingest_seconds": 4.9,
+      "matching": {
+        "variants": 314,
+        "auto_matched": 297,
+        "correct": 297,
+        "sent_to_review": 17,
+        "precision": 1.0,
+        "recall": 0.946,
+        "review_share": 0.054,
+        "ambiguous_sent_to_review": "12/84",
+        "errors": []
+      },
+      "diagnosis": {
+        "signal_recall": 1.0,
+        "per_signal": {
+          "infrastructure": {
+            "expected": 2,
+            "detected": 2
+          },
+          "student_attendance": {
+            "expected": 0,
+            "detected": 0
+          },
+          "maths_vacancy": {
+            "expected": 2,
+            "detected": 2
+          }
+        },
+        "false_flags": 0,
+        "false_flags_per_block": 0.0,
+        "status_accuracy": 1.0,
+        "decline_detection": 1.0,
+        "blocks": [
+          {
+            "block": "Zirnia",
+            "status": "insufficient",
+            "verdict": "INSUFFICIENT_EVIDENCE",
+            "expected": [],
+            "flagged": [],
+            "false_flags": [],
+            "status_ok": true,
+            "change_pp": -12.2
+          },
+          {
+            "block": "Chourai",
+            "status": "stable",
+            "verdict": "STABLE",
+            "expected": [],
+            "flagged": [],
+            "false_flags": [],
+            "status_ok": true,
+            "change_pp": -1.1
+          },
+          {
+            "block": "Udaipura",
+            "status": "insufficient",
+            "verdict": "INSUFFICIENT_EVIDENCE",
+            "expected": [],
+            "flagged": [],
+            "false_flags": [],
+            "status_ok": true,
+            "change_pp": -12.6
+          },
+          {
+            "block": "Sihawal",
+            "status": "insufficient",
+            "verdict": "INSUFFICIENT_EVIDENCE",
+            "expected": [],
+            "flagged": [],
+            "false_flags": [],
+            "status_ok": true,
+            "change_pp": -11.1
+          },
+          {
+            "block": "Khaknar",
+            "status": "stable",
+            "verdict": "STABLE",
+            "expected": [],
+            "flagged": [
+              "teacher_attendance"
+            ],
+            "false_flags": [],
+            "status_ok": true,
+            "change_pp": -1.7
+          },
+          {
+            "block": "Chachaura",
+            "status": "insufficient",
+            "verdict": "INSUFFICIENT_EVIDENCE",
+            "expected": [],
+            "flagged": [],
+            "false_flags": [],
+            "status_ok": true,
+            "change_pp": -12.2
+          },
+          {
+            "block": "Sanwer",
+            "status": "stable",
+            "verdict": "EXPLAINED_BY_ASSOCIATED_SIGNALS",
+            "expected": [],
+            "flagged": [
+              "teacher_attendance"
+            ],
+            "false_flags": [],
+            "status_ok": true,
+            "change_pp": -4.7
+          },
+          {
+            "block": "Gohad",
+            "status": "stable",
+            "verdict": "STABLE",
+            "expected": [],
+            "flagged": [
+              "teacher_attendance"
+            ],
+            "false_flags": [],
+            "status_ok": true,
+            "change_pp": -3.3
+          },
+          {
+            "block": "Waraseoni",
+            "status": "decline",
+            "verdict": "EXPLAINED_BY_ASSOCIATED_SIGNALS",
+            "expected": [
+              "maths_vacancy"
+            ],
+            "flagged": [
+              "maths_vacancy"
+            ],
+            "false_flags": [],
+            "status_ok": true,
+            "change_pp": -10.2
+          },
+          {
+            "block": "Mohgaon",
+            "status": "decline",
+            "verdict": "EXPLAINED_BY_ASSOCIATED_SIGNALS",
+            "expected": [
+              "maths_vacancy"
+            ],
+            "flagged": [
+              "maths_vacancy"
+            ],
+            "false_flags": [],
+            "status_ok": true,
+            "change_pp": -11.2
+          },
+          {
+            "block": "Garoth",
+            "status": "stable",
+            "verdict": "EXPLAINED_BY_ASSOCIATED_SIGNALS",
+            "expected": [],
+            "flagged": [
+              "teacher_attendance"
+            ],
+            "false_flags": [],
+            "status_ok": true,
+            "change_pp": -5.5
+          },
+          {
+            "block": "Rampur",
+            "status": "decline",
+            "verdict": "EXPLAINED_BY_ASSOCIATED_SIGNALS",
+            "expected": [
+              "infrastructure"
+            ],
+            "flagged": [
+              "infrastructure",
+              "teacher_attendance"
+            ],
+            "false_flags": [],
+            "status_ok": true,
+            "change_pp": -4.7
+          },
+          {
+            "block": "Rehli",
+            "status": "decline",
+            "verdict": "EXPLAINED_BY_ASSOCIATED_SIGNALS",
+            "expected": [
+              "infrastructure"
+            ],
+            "flagged": [
+              "infrastructure"
+            ],
+            "false_flags": [],
+            "status_ok": true,
+            "change_pp": -5.8
+          },
+          {
+            "block": "Shahpura",
+            "status": "improving",
+            "verdict": "EXPLAINED_BY_ASSOCIATED_SIGNALS",
+            "expected": [],
+            "flagged": [],
+            "false_flags": [],
+            "status_ok": true,
+            "change_pp": 4.7
+          },
+          {
+            "block": "Hatta",
+            "status": "stable",
+            "verdict": "STABLE",
+            "expected": [],
+            "flagged": [
+              "teacher_attendance"
+            ],
+            "false_flags": [],
+            "status_ok": true,
+            "change_pp": -3.0
+          }
+        ]
+      },
+      "comparability": {
+        "expected": 0,
+        "flagged": 0
+      },
+      "model": {
+        "r2_heldout": 0.692,
+        "mae_heldout": 4.29,
+        "n": 1551,
+        "validation": "Out-of-fold predictions with GroupKFold by block (no block in both train and test)",
+        "no_leakage": true,
+        "unexplained_blocks": [],
+        "bottom_residual_blocks": [
+          "Khaknar"
+        ],
+        "unexplained_bottom": 1.0
+      },
+      "peers": {
+        "election_blocks": 4,
+        "filter_respected": 4,
+        "peer_filter": 1.0
+      }
+    },
+    "test_overlap_c": {
+      "schools": 601,
+      "blocks": 15,
+      "ingest_seconds": 4.7,
+      "matching": {
+        "variants": 208,
+        "auto_matched": 197,
+        "correct": 196,
+        "sent_to_review": 11,
+        "precision": 0.995,
+        "recall": 0.942,
+        "review_share": 0.053,
+        "ambiguous_sent_to_review": "7/61",
+        "errors": [
+          {
+            "variant": "Government Pry School Sgabari",
+            "block": "Pawai",
+            "got": "99020303259",
+            "true": "99020303025",
+            "method": "fuzzy_name"
+          }
+        ]
+      },
+      "diagnosis": {
+        "signal_recall": 1.0,
+        "per_signal": {
+          "infrastructure": {
+            "expected": 4,
+            "detected": 4
+          },
+          "student_attendance": {
+            "expected": 5,
+            "detected": 5
+          },
+          "maths_vacancy": {
+            "expected": 3,
+            "detected": 3
+          }
+        },
+        "false_flags": 0,
+        "false_flags_per_block": 0.0,
+        "status_accuracy": 1.0,
+        "decline_detection": 1.0,
+        "blocks": [
+          {
+            "block": "Lanji",
+            "status": "unexplained",
+            "verdict": "PARTIALLY_EXPLAINED",
+            "expected": [],
+            "flagged": [
+              "teacher_attendance"
+            ],
+            "false_flags": [],
+            "status_ok": true,
+            "change_pp": -15.6
+          },
+          {
+            "block": "Raghogarh",
+            "status": "decline",
+            "verdict": "EXPLAINED_BY_ASSOCIATED_SIGNALS",
+            "expected": [
+              "student_attendance"
+            ],
+            "flagged": [
+              "student_attendance",
+              "teacher_attendance"
+            ],
+            "false_flags": [],
+            "status_ok": true,
+            "change_pp": -8.5
+          },
+          {
+            "block": "Vijaypur",
+            "status": "decline",
+            "verdict": "EXPLAINED_BY_ASSOCIATED_SIGNALS",
+            "expected": [
+              "maths_vacancy",
+              "student_attendance"
+            ],
+            "flagged": [
+              "maths_vacancy",
+              "student_attendance",
+              "teacher_attendance"
+            ],
+            "false_flags": [],
+            "status_ok": true,
+            "change_pp": -22.7
+          },
+          {
+            "block": "Nasrullaganj",
+            "status": "stable",
+            "verdict": "STABLE",
+            "expected": [],
+            "flagged": [
+              "teacher_attendance"
+            ],
+            "false_flags": [],
+            "status_ok": true,
+            "change_pp": -2.4
+          },
+          {
+            "block": "Garoth",
+            "status": "decline",
+            "verdict": "EXPLAINED_BY_ASSOCIATED_SIGNALS",
+            "expected": [
+              "infrastructure"
+            ],
+            "flagged": [
+              "infrastructure",
+              "teacher_attendance"
+            ],
+            "false_flags": [],
+            "status_ok": true,
+            "change_pp": -6.1
+          },
+          {
+            "block": "Niwari",
+            "status": "decline",
+            "verdict": "EXPLAINED_BY_ASSOCIATED_SIGNALS",
+            "expected": [
+              "infrastructure",
+              "student_attendance"
+            ],
+            "flagged": [
+              "infrastructure",
+              "student_attendance",
+              "teacher_attendance"
+            ],
+            "false_flags": [],
+            "status_ok": true,
+            "change_pp": -14.8
+          },
+          {
+            "block": "Lahar",
+            "status": "unexplained",
+            "verdict": "PARTIALLY_EXPLAINED",
+            "expected": [],
+            "flagged": [
+              "teacher_attendance"
+            ],
+            "false_flags": [],
+            "status_ok": true,
+            "change_pp": -13.7
+          },
+          {
+            "block": "Pawai",
+            "status": "unexplained",
+            "verdict": "PARTIALLY_EXPLAINED",
+            "expected": [],
+            "flagged": [
+              "teacher_attendance"
+            ],
+            "false_flags": [],
+            "status_ok": true,
+            "change_pp": -14.2
+          },
+          {
+            "block": "Gohad",
+            "status": "decline",
+            "verdict": "EXPLAINED_BY_ASSOCIATED_SIGNALS",
+            "expected": [
+              "infrastructure",
+              "student_attendance"
+            ],
+            "flagged": [
+              "infrastructure",
+              "student_attendance",
+              "teacher_attendance"
+            ],
+            "false_flags": [],
+            "status_ok": true,
+            "change_pp": -16.7
+          },
+          {
+            "block": "Waraseoni",
+            "status": "decline",
+            "verdict": "EXPLAINED_BY_ASSOCIATED_SIGNALS",
+            "expected": [
+              "infrastructure",
+              "maths_vacancy"
+            ],
+            "flagged": [
+              "infrastructure",
+              "maths_vacancy",
+              "teacher_attendance"
+            ],
+            "false_flags": [],
+            "status_ok": true,
+            "change_pp": -13.6
+          },
+          {
+            "block": "Mohgaon",
+            "status": "unexplained",
+            "verdict": "PARTIALLY_EXPLAINED",
+            "expected": [],
+            "flagged": [
+              "teacher_attendance"
+            ],
+            "false_flags": [],
+            "status_ok": true,
+            "change_pp": -15.5
+          },
+          {
+            "block": "Patharia",
+            "status": "decline",
+            "verdict": "EXPLAINED_BY_ASSOCIATED_SIGNALS",
+            "expected": [
+              "maths_vacancy",
+              "student_attendance"
+            ],
+            "flagged": [
+              "maths_vacancy",
+              "student_attendance",
+              "teacher_attendance"
+            ],
+            "false_flags": [],
+            "status_ok": true,
+            "change_pp": -16.9
+          },
+          {
+            "block": "Sanwer",
+            "status": "stable",
+            "verdict": "STABLE",
+            "expected": [],
+            "flagged": [
+              "teacher_attendance"
+            ],
+            "false_flags": [],
+            "status_ok": true,
+            "change_pp": -0.5
+          },
+          {
+            "block": "Jatara",
+            "status": "stable",
+            "verdict": "STABLE",
+            "expected": [],
+            "flagged": [
+              "teacher_attendance"
+            ],
+            "false_flags": [],
+            "status_ok": true,
+            "change_pp": -2.6
+          },
+          {
+            "block": "Zirnia",
+            "status": "stable",
+            "verdict": "STABLE",
+            "expected": [],
+            "flagged": [
+              "teacher_attendance"
+            ],
+            "false_flags": [],
+            "status_ok": true,
+            "change_pp": -2.5
+          }
+        ]
+      },
+      "comparability": {
+        "expected": 0,
+        "flagged": 0
+      },
+      "model": {
+        "r2_heldout": 0.701,
+        "mae_heldout": 4.87,
+        "n": 1755,
+        "validation": "Out-of-fold predictions with GroupKFold by block (no block in both train and test)",
+        "no_leakage": true,
+        "unexplained_blocks": [
+          "Lanji",
+          "Lahar",
+          "Pawai",
+          "Mohgaon"
+        ],
+        "bottom_residual_blocks": [
+          "Mohgaon",
+          "Lanji",
+          "Pawai",
+          "Lahar"
+        ],
+        "unexplained_bottom": 1.0
+      },
+      "peers": {
+        "election_blocks": 0,
+        "filter_respected": 0,
+        "peer_filter": 1.0
+      }
+    }
+  },
+  "quality_monotonic": {
+    "runs": [
+      {
+        "missing_months_pct": 0.0,
+        "attendance_completeness": 0.987,
+        "confidence": 99
+      },
+      {
+        "missing_months_pct": 0.2,
+        "attendance_completeness": 0.787,
+        "confidence": 94
+      },
+      {
+        "missing_months_pct": 0.45,
+        "attendance_completeness": 0.545,
+        "confidence": 88
+      }
+    ],
+    "monotonic": true
+  },
+  "checks": [
+    {
+      "scenario": "demo_district_a",
+      "check": "School-match precision",
+      "value": 1.0,
+      "target": "\u2265 0.97",
+      "passed": true
+    },
+    {
+      "scenario": "demo_district_a",
+      "check": "School-match recall (auto)",
+      "value": 0.917,
+      "target": "\u2265 0.8",
+      "passed": true
+    },
+    {
+      "scenario": "demo_district_a",
+      "check": "Signal detection recall",
+      "value": 0.857,
+      "target": "\u2265 0.8",
+      "passed": true
+    },
+    {
+      "scenario": "demo_district_a",
+      "check": "False flags per block",
+      "value": 0.0,
+      "target": "\u2264 0.1",
+      "passed": true
+    },
+    {
+      "scenario": "demo_district_a",
+      "check": "Block status accuracy",
+      "value": 1.0,
+      "target": "\u2265 0.8",
+      "passed": true
+    },
+    {
+      "scenario": "demo_district_a",
+      "check": "Decline detection",
+      "value": 1.0,
+      "target": "\u2265 0.9",
+      "passed": true
+    },
+    {
+      "scenario": "demo_district_a",
+      "check": "Methodology changes flagged",
+      "value": "1/1",
+      "target": "all",
+      "passed": true
+    },
+    {
+      "scenario": "demo_district_a",
+      "check": "Expected-vs-actual held-out R\u00b2",
+      "value": 0.658,
+      "target": "\u2265 0.4",
+      "passed": true
+    },
+    {
+      "scenario": "demo_district_a",
+      "check": "No outcome leakage in model features",
+      "value": true,
+      "target": "true",
+      "passed": true
+    },
+    {
+      "scenario": "demo_district_a",
+      "check": "Unexplained declines classed 'underperforming conditions'",
+      "value": 1.0,
+      "target": "all",
+      "passed": true
+    },
+    {
+      "scenario": "demo_district_a",
+      "check": "Election peer filter respected",
+      "value": 1.0,
+      "target": "all",
+      "passed": true
+    },
+    {
+      "scenario": "demo_district_a",
+      "check": "Guard catches adversarial answers",
+      "value": 1.0,
+      "target": "all",
+      "passed": true
+    },
+    {
+      "scenario": "demo_district_a",
+      "check": "Fallback answers fully grounded",
+      "value": 1.0,
+      "target": "all",
+      "passed": true
+    },
+    {
+      "scenario": "test_random_a",
+      "check": "School-match precision",
+      "value": 1.0,
+      "target": "\u2265 0.97",
+      "passed": true
+    },
+    {
+      "scenario": "test_random_a",
+      "check": "School-match recall (auto)",
+      "value": 0.945,
+      "target": "\u2265 0.8",
+      "passed": true
+    },
+    {
+      "scenario": "test_random_a",
+      "check": "Signal detection recall",
+      "value": 1.0,
+      "target": "\u2265 0.8",
+      "passed": true
+    },
+    {
+      "scenario": "test_random_a",
+      "check": "False flags per block",
+      "value": 0.0,
+      "target": "\u2264 0.1",
+      "passed": true
+    },
+    {
+      "scenario": "test_random_a",
+      "check": "Block status accuracy",
+      "value": 1.0,
+      "target": "\u2265 0.8",
+      "passed": true
+    },
+    {
+      "scenario": "test_random_a",
+      "check": "Decline detection",
+      "value": 1.0,
+      "target": "\u2265 0.9",
+      "passed": true
+    },
+    {
+      "scenario": "test_random_a",
+      "check": "Methodology changes flagged",
+      "value": "1/1",
+      "target": "all",
+      "passed": true
+    },
+    {
+      "scenario": "test_random_a",
+      "check": "Expected-vs-actual held-out R\u00b2",
+      "value": 0.547,
+      "target": "\u2265 0.4",
+      "passed": true
+    },
+    {
+      "scenario": "test_random_a",
+      "check": "No outcome leakage in model features",
+      "value": true,
+      "target": "true",
+      "passed": true
+    },
+    {
+      "scenario": "test_random_a",
+      "check": "Unexplained declines classed 'underperforming conditions'",
+      "value": 1.0,
+      "target": "all",
+      "passed": true
+    },
+    {
+      "scenario": "test_random_a",
+      "check": "Election peer filter respected",
+      "value": 1.0,
+      "target": "all",
+      "passed": true
+    },
+    {
+      "scenario": "test_random_b",
+      "check": "School-match precision",
+      "value": 1.0,
+      "target": "\u2265 0.97",
+      "passed": true
+    },
+    {
+      "scenario": "test_random_b",
+      "check": "School-match recall (auto)",
+      "value": 0.946,
+      "target": "\u2265 0.8",
+      "passed": true
+    },
+    {
+      "scenario": "test_random_b",
+      "check": "Signal detection recall",
+      "value": 1.0,
+      "target": "\u2265 0.8",
+      "passed": true
+    },
+    {
+      "scenario": "test_random_b",
+      "check": "False flags per block",
+      "value": 0.0,
+      "target": "\u2264 0.1",
+      "passed": true
+    },
+    {
+      "scenario": "test_random_b",
+      "check": "Block status accuracy",
+      "value": 1.0,
+      "target": "\u2265 0.8",
+      "passed": true
+    },
+    {
+      "scenario": "test_random_b",
+      "check": "Decline detection",
+      "value": 1.0,
+      "target": "\u2265 0.9",
+      "passed": true
+    },
+    {
+      "scenario": "test_random_b",
+      "check": "Methodology changes flagged",
+      "value": "0/0",
+      "target": "all",
+      "passed": true
+    },
+    {
+      "scenario": "test_random_b",
+      "check": "Expected-vs-actual held-out R\u00b2",
+      "value": 0.692,
+      "target": "\u2265 0.4",
+      "passed": true
+    },
+    {
+      "scenario": "test_random_b",
+      "check": "No outcome leakage in model features",
+      "value": true,
+      "target": "true",
+      "passed": true
+    },
+    {
+      "scenario": "test_random_b",
+      "check": "Unexplained declines classed 'underperforming conditions'",
+      "value": 1.0,
+      "target": "all",
+      "passed": true
+    },
+    {
+      "scenario": "test_random_b",
+      "check": "Election peer filter respected",
+      "value": 1.0,
+      "target": "all",
+      "passed": true
+    },
+    {
+      "scenario": "test_overlap_c",
+      "check": "School-match precision",
+      "value": 0.995,
+      "target": "\u2265 0.97",
+      "passed": true
+    },
+    {
+      "scenario": "test_overlap_c",
+      "check": "School-match recall (auto)",
+      "value": 0.942,
+      "target": "\u2265 0.8",
+      "passed": true
+    },
+    {
+      "scenario": "test_overlap_c",
+      "check": "Signal detection recall",
+      "value": 1.0,
+      "target": "\u2265 0.8",
+      "passed": true
+    },
+    {
+      "scenario": "test_overlap_c",
+      "check": "False flags per block",
+      "value": 0.0,
+      "target": "\u2264 0.1",
+      "passed": true
+    },
+    {
+      "scenario": "test_overlap_c",
+      "check": "Block status accuracy",
+      "value": 1.0,
+      "target": "\u2265 0.8",
+      "passed": true
+    },
+    {
+      "scenario": "test_overlap_c",
+      "check": "Decline detection",
+      "value": 1.0,
+      "target": "\u2265 0.9",
+      "passed": true
+    },
+    {
+      "scenario": "test_overlap_c",
+      "check": "Methodology changes flagged",
+      "value": "0/0",
+      "target": "all",
+      "passed": true
+    },
+    {
+      "scenario": "test_overlap_c",
+      "check": "Expected-vs-actual held-out R\u00b2",
+      "value": 0.701,
+      "target": "\u2265 0.4",
+      "passed": true
+    },
+    {
+      "scenario": "test_overlap_c",
+      "check": "No outcome leakage in model features",
+      "value": true,
+      "target": "true",
+      "passed": true
+    },
+    {
+      "scenario": "test_overlap_c",
+      "check": "Unexplained declines classed 'underperforming conditions'",
+      "value": 1.0,
+      "target": "all",
+      "passed": true
+    },
+    {
+      "scenario": "test_overlap_c",
+      "check": "Election peer filter respected",
+      "value": 1.0,
+      "target": "all",
+      "passed": true
+    },
+    {
+      "scenario": "test_random_a (sweep)",
+      "check": "Confidence falls as missing data rises",
+      "value": [
+        99,
+        94,
+        88
+      ],
+      "target": "monotonic",
+      "passed": true
+    }
+  ],
+  "passed": true,
+  "seconds": 100.2
+}

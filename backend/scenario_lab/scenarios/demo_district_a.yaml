@@ -1,0 +1,113 @@
+# Demo scenario for the hackathon walkthrough.
+# SYNTHETIC — NOT GOVERNMENT DATA. Base rates are loosely calibrated to published
+# NAS 2021 / UDISE+ ranges; all names, codes and values are fictional.
+name: demo_district_a
+description: >
+  Devgarh district (Mr. Chan) falls on foundational numeracy. Poti has a maths-teacher
+  vacancy rise, Sinda has migration-season attendance decline, and Kerwa declines with no
+  tracked indicator changing. A state-wide assembly election in 2024-25 disrupted teaching
+  everywhere, so peers can be compared.
+seed: 42
+state: Sahyadri Pradesh (fictional)
+years: ["2022-23", "2023-24", "2024-25"]
+schools_per_block: 60
+election:
+  year_index: 2
+  months: [11, 12]
+  teacher_days_lost: [6, 12]      # default range per block in the election year
+mess:
+  missing_months_pct: 0.04
+  duplicate_pct: 0.01
+  name_variant_pct: 0.03
+  incomplete_rows_pct: 0.01
+districts:
+  - name: Devgarh
+    shift: -1.5
+    blocks:
+      - name: Poti
+        rural_share: 0.85
+        effects:
+          - {type: vacancy_rise, start: 1, to: 0.48}
+          - {type: election_disruption, teacher_days_lost: 18}
+      - name: Sinda
+        rural_share: 0.8
+        effects:
+          - {type: attendance_decline, start: 1, drop: 15, months: [11, 12, 1, 2]}
+      - name: Kerwa
+        rural_share: 0.7
+        effects:
+          - {type: unexplained_decline, start: 1, drop: 13}
+      - name: Bhanpur
+        rural_share: 0.6
+        effects: []
+      - name: Ranjhi
+        rural_share: 0.5
+        effects:
+          - {type: improvement, start: 1, attendance_gain: 5, vacancy_to: 0.04, extra: 1.5}
+  - name: Sonpur
+    shift: 1.0
+    blocks:
+      - name: Alot
+        rural_share: 0.85
+        effects:
+          - {type: election_disruption, teacher_days_lost: 17}
+      - name: Badnagar
+        rural_share: 0.8
+        effects:
+          - {type: election_disruption, teacher_days_lost: 16}
+      - name: Chitrangi
+        rural_share: 0.9
+        effects:
+          - {type: vacancy_rise, start: 1, to: 0.38}
+          - {type: attendance_decline, start: 1, drop: 10, months: [11, 12, 1, 2]}
+          - {type: infra_gap, start: 1, share_schools: 0.6, facilities_lost: 4}
+      - name: Dabra
+        rural_share: 0.75
+        effects:
+          - {type: insufficient_evidence, start: 2, drop: 8, missing_attendance: 0.8, drop_teacher_file: true}
+      - name: Ganj
+        rural_share: 0.4
+        effects: []
+  - name: Mahikantha
+    shift: 2.0
+    blocks:
+      - name: Isagarh
+        rural_share: 0.85
+        effects:
+          - {type: election_disruption, teacher_days_lost: 18}
+      - name: Jaora
+        rural_share: 0.7
+        effects:
+          - {type: infra_gap, start: 1, share_schools: 0.65, facilities_lost: 4}
+      - name: Khilchipur
+        rural_share: 0.6
+        effects:
+          - {type: improvement, start: 1, attendance_gain: 6, vacancy_to: 0.03, extra: 1.0}
+      - name: Lateri
+        rural_share: 0.65
+        effects: []
+      - name: Manasa
+        rural_share: 0.7
+        effects:
+          - {type: methodology_change, start: 2, assessment_type: SLAS, max_marks: 50, coverage: 0.45}
+  - name: Taptighat
+    shift: 0.5
+    blocks:
+      - name: Nagda
+        rural_share: 0.8
+        effects:
+          - {type: election_disruption, teacher_days_lost: 17}
+      - name: Pichhore
+        rural_share: 0.6
+        effects: []
+      - name: Sironj
+        rural_share: 0.7
+        effects:
+          - {type: vacancy_rise, start: 1, to: 0.36}
+      - name: Tonk
+        rural_share: 0.5
+        effects: []
+      - name: Ujjaini
+        rural_share: 0.45
+        effects:
+          - {type: improvement, start: 1, attendance_gain: 4, vacancy_to: 0.05, extra: 1.0}

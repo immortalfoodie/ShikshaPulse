@@ -1,0 +1,10 @@
+{
+  "name": "ShikshaPulse",
+  "short_name": "ShikshaPulse",
+  "description": "School data to action — district education diagnostics and school visits",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f4efe5",
+  "theme_color": "#1e4d36",
+  "icons": [{ "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }]
+}

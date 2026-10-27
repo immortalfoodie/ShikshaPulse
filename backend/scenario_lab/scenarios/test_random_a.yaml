@@ -1,0 +1,22 @@
+# Randomised evaluation scenario: block names and effect placement are drawn from the seed,
+# so analytics cannot rely on hard-coded block names. SYNTHETIC — NOT GOVERNMENT DATA.
+name: test_random_a
+description: Randomised placement of effects across 3 districts x 5 blocks, light mess.
+seed: 7
+state: Test Pradesh (fictional)
+years: ["2022-23", "2023-24", "2024-25"]
+schools_per_block: 40
+election:
+  year_index: 2
+  months: [11, 12]
+  teacher_days_lost: [5, 11]
+mess:
+  missing_months_pct: 0.04
+  duplicate_pct: 0.01
+  name_variant_pct: 0.03
+  incomplete_rows_pct: 0.01
+randomize:
+  districts: 3
+  blocks_per_district: 5
+  effect_pool: [vacancy_rise, attendance_decline, unexplained_decline, insufficient_evidence,
+                infra_gap, improvement, methodology_change, election_disruption, none, none, none]

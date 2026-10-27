@@ -1,0 +1,12 @@
+# secrets never go into the image: set keys as environment variables on the host
+**/.env
+backend/.venv/
+backend/data/
+backend/.pytest_cache/
+**/__pycache__/
+**/*.pyc
+frontend/node_modules/
+frontend/dist/
+screenshots/
+server.log
+.git/

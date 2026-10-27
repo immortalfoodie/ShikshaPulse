@@ -1,0 +1,80 @@
+@import "@fontsource/mukta/400.css";
+@import "@fontsource/mukta/500.css";
+@import "@fontsource/mukta/600.css";
+@import "@fontsource/mukta/700.css";
+@import "@fontsource/noto-sans-tamil/400.css";
+@import "@fontsource/noto-sans-tamil/600.css";
+@import "@fontsource/noto-sans-telugu/400.css";
+@import "@fontsource/noto-sans-telugu/600.css";
+@import "@fontsource/noto-sans-bengali/400.css";
+@import "@fontsource/noto-sans-bengali/600.css";
+@import "tailwindcss";
+
+/* ShikshaPulse design tokens — warm civic palette, no blue/purple.
+   Chart series validated with the dataviz CVD script: green #1f7a4a + saffron #dd8f22 (ΔE 16.4). */
+@theme {
+  --font-sans: var(--font-ui, "Mukta", system-ui, "Segoe UI", sans-serif);
+  --color-paper: #f4efe5;
+  --color-surface: #fffdf8;
+  --color-sunk: #f8f4ec;
+  --color-line: #e4ddd0;
+  --color-line-2: #d6cdbd;
+  --color-ink: #1f1d1a;
+  --color-ink-2: #57524b;
+  --color-muted: #8a847b;
+  --color-forest: #1e4d36;
+  --color-forest-2: #2a6247;
+  --color-forest-50: #e8efe9;
+  --color-s1: #1f7a4a;
+  --color-s2: #dd8f22;
+  --color-saffron-50: #fbf0de;
+  --color-brick: #b4432a;
+  --color-brick-50: #f8e7e1;
+  --color-mustard: #8a5a0b;
+  --color-mustard-50: #fbf1d9;
+  --color-good: #1f6b3a;
+  --color-good-50: #e5f0e7;
+}
+
+html { font-size: 16px; }
+html, body, #root { height: 100%; }
+body { background: var(--color-paper); color: var(--color-ink); font-family: var(--font-sans); -webkit-font-smoothing: antialiased; }
+.tabnum { font-variant-numeric: tabular-nums; }
+
+/* surfaces */
+.panel { background: var(--color-surface); border: 1px solid var(--color-line); border-radius: 10px; }
+.panel-sunk { background: var(--color-sunk); border: 1px solid var(--color-line); border-radius: 8px; }
+.rule { border-top: 1px solid var(--color-line); }
+
+/* type */
+.eyebrow { font-size: .72rem; letter-spacing: .08em; text-transform: uppercase; color: var(--color-muted); font-weight: 600; }
+.h-page { font-size: 1.6rem; line-height: 1.15; font-weight: 700; letter-spacing: -.01em; }
+.h-card { font-size: 1.02rem; font-weight: 600; line-height: 1.3; }
+.num-xl { font-size: 2.1rem; font-weight: 700; line-height: 1; letter-spacing: -.02em; }
+
+/* controls */
+.btn { display: inline-flex; align-items: center; gap: .45rem; border-radius: 8px; padding: .5rem .9rem; font-size: .9rem; font-weight: 600; line-height: 1.2; transition: background .15s, border-color .15s; min-height: 2.5rem; }
+.btn-primary { background: var(--color-forest); color: #fffdf8; }
+.btn-primary:hover { background: var(--color-forest-2); }
+.btn-quiet { background: var(--color-surface); border: 1px solid var(--color-line-2); color: var(--color-ink); }
+.btn-quiet:hover { background: var(--color-sunk); }
+.btn-accent { background: var(--color-s2); color: #1f1d1a; }
+.btn-accent:hover { background: #c97f17; }
+.btn:disabled { opacity: .45; cursor: not-allowed; }
+.field { border: 1px solid var(--color-line-2); border-radius: 8px; padding: .45rem .65rem; font-size: .92rem; background: var(--color-surface); min-height: 2.5rem; }
+.field:focus, .btn:focus-visible, button:focus-visible, a:focus-visible, select:focus-visible { outline: 2px solid var(--color-s2); outline-offset: 2px; }
+.tag { display: inline-flex; align-items: center; gap: .3rem; border-radius: 6px; padding: .1rem .5rem; font-size: .76rem; font-weight: 600; background: var(--color-sunk); color: var(--color-ink-2); border: 1px solid var(--color-line); }
+.seg { display: inline-flex; border: 1px solid var(--color-line-2); border-radius: 8px; overflow: hidden; }
+.seg > button { padding: .35rem .65rem; font-size: .85rem; font-weight: 600; background: var(--color-surface); }
+.seg > button[aria-pressed="true"] { background: var(--color-forest); color: #fffdf8; }
+
+/* bullet list for reasons — replaces "chip soup" */
+.reasons { list-style: none; padding: 0; margin: 0; display: grid; gap: .2rem; }
+.reasons li { position: relative; padding-left: .9rem; font-size: .88rem; color: var(--color-ink-2); }
+.reasons li::before { content: ""; position: absolute; left: 0; top: .55em; width: .38rem; height: .38rem; border-radius: 2px; background: var(--color-s2); }
+
+@media print {
+  .no-print { display: none !important; }
+  body { background: white; }
+  .panel { border: none; }
+}

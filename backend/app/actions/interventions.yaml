@@ -1,0 +1,93 @@
+# Intervention library: suggested responses keyed by trigger indicator.
+# Suggestions only — officers choose what is appropriate. Each lists the implementation
+# indicator (was it done?) and learning indicator (did outcomes move?) to track separately.
+maths_vacancy:
+  label: Maths teacher vacancy
+  actions:
+    - key: teacher_redistribution
+      title: Temporary maths teacher redistribution within the block
+      owner_role: Block Education Officer
+      days: 21
+      implementation: {indicator: maths_posts_filled, label: "Maths posts filled (temporary or permanent)", target_from: vacancies}
+      learning: {indicator: numeracy, label: "Grade 3 numeracy (%)", follow_up_days: 120}
+    - key: cluster_sharing
+      title: Cluster-level maths teacher sharing timetable
+      owner_role: Cluster Resource Coordinator
+      days: 14
+      implementation: {indicator: periods_covered, label: "Maths periods covered per week", target: 30}
+      learning: {indicator: numeracy, label: "Grade 3 numeracy (%)", follow_up_days: 120}
+    - key: guest_teacher_request
+      title: Guest / resource teacher request to the district
+      owner_role: District Education Officer
+      days: 30
+      implementation: {indicator: guest_teachers_joined, label: "Guest teachers joined", target_from: vacancies}
+      learning: {indicator: numeracy, label: "Grade 3 numeracy (%)", follow_up_days: 150}
+student_attendance:
+  label: Student attendance decline
+  actions:
+    - key: attendance_review
+      title: School-level attendance review with headmasters
+      owner_role: Block Education Officer
+      days: 14
+      implementation: {indicator: schools_reviewed, label: "Schools reviewed", target_from: schools}
+      learning: {indicator: student_att, label: "Student attendance (%)", follow_up_days: 60}
+    - key: migration_tracking
+      title: Seasonal-migration tracking and seasonal hostel / bridge-class linkage
+      owner_role: Block Education Officer
+      days: 30
+      implementation: {indicator: children_tracked, label: "Migrating children tracked", target: 200}
+      learning: {indicator: student_att, label: "Student attendance (%)", follow_up_days: 90}
+    - key: parent_engagement
+      title: SMC / parent engagement drive in low-attendance villages
+      owner_role: Headmaster
+      days: 21
+      implementation: {indicator: smc_meetings, label: "SMC meetings held", target_from: schools}
+      learning: {indicator: student_att, label: "Student attendance (%)", follow_up_days: 60}
+teacher_attendance:
+  label: Teacher attendance / non-teaching duty
+  actions:
+    - key: duty_rationalisation
+      title: Request rationalisation of non-teaching duty deployment
+      owner_role: District Education Officer
+      days: 14
+      implementation: {indicator: teachers_released, label: "Teachers released from non-teaching duty", target: 20}
+      learning: {indicator: teacher_att, label: "Teacher attendance (%)", follow_up_days: 60}
+    - key: remedial_catchup
+      title: Remedial catch-up classes for instructional days lost
+      owner_role: Block Education Officer
+      days: 30
+      implementation: {indicator: remedial_sessions, label: "Remedial sessions delivered", target: 40}
+      learning: {indicator: numeracy, label: "Grade 3 numeracy (%)", follow_up_days: 120}
+infrastructure:
+  label: Infrastructure gaps
+  actions:
+    - key: facility_repair
+      title: Prioritised facility repair list (Samagra Shiksha civil works)
+      owner_role: Block Engineer / BEO
+      days: 45
+      implementation: {indicator: facilities_restored, label: "Facilities restored", target_from: schools}
+      learning: {indicator: student_att, label: "Student attendance (%)", follow_up_days: 120}
+unexplained_decline:
+  label: Decline not associated with tracked indicators
+  actions:
+    - key: classroom_observation
+      title: Structured classroom observation visits (maths lessons)
+      owner_role: Block Resource Person
+      days: 21
+      implementation: {indicator: observations_done, label: "Classroom observations completed", target_from: schools}
+      learning: {indicator: numeracy, label: "Grade 3 numeracy (%)", follow_up_days: 120}
+    - key: fln_remedial
+      title: FLN remedial programme (teaching-at-the-right-level groups)
+      owner_role: Block Education Officer
+      days: 30
+      implementation: {indicator: remedial_sessions, label: "Remedial sessions delivered", target: 60}
+      learning: {indicator: numeracy, label: "Grade 3 numeracy (%)", follow_up_days: 120}
+insufficient_evidence:
+  label: Insufficient evidence
+  actions:
+    - key: data_completion
+      title: Complete missing attendance / teacher-post returns
+      owner_role: Block MIS Coordinator
+      days: 14
+      implementation: {indicator: returns_completed, label: "Schools with complete returns", target_from: schools}
+      learning: {indicator: data_confidence, label: "Data confidence score", follow_up_days: 30}

@@ -1,0 +1,27 @@
+# ShikshaPulse runtime configuration.
+# mode: demo        -> synthetic scenario files (provenance tier: synthetic_demo)
+# mode: department  -> files uploaded by the department (provenance tier: department_uploaded)
+# Analytics and the frontend are identical in both modes; only the active adapters change.
+mode: demo
+active_scenario: demo_district_a
+adapters:
+  demo: [synthetic_files]
+  department: [upload]
+provenance:
+  synthetic_files: synthetic_demo
+  upload: department_uploaded
+  udise_api: verified_official
+  state_portal: verified_official
+warehouse: data/warehouse.db
+uploads_dir: data/uploads
+# Reference "today" for deadlines/overdue in the demo, so seeded actions stay meaningful.
+demo_today: "2025-10-20"
+matching:
+  auto_threshold: 0.85
+  review_threshold: 0.70
+diagnosis:
+  min_coverage: 0.6
+  high_contribution_pp: 2.5
+  medium_contribution_pp: 1.2
+  min_assoc: 0.25
+  unexplained_pp: 4.0

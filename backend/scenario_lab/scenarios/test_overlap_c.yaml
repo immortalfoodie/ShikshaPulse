@@ -1,0 +1,22 @@
+# Randomised scenario that favours overlapping adverse effects in the same block.
+# SYNTHETIC — NOT GOVERNMENT DATA.
+name: test_overlap_c
+description: Randomised placement where most affected blocks carry two adverse effects.
+seed: 2024
+state: Test Pradesh (fictional)
+years: ["2022-23", "2023-24", "2024-25"]
+schools_per_block: 40
+election:
+  year_index: 2
+  months: [11, 12]
+  teacher_days_lost: [5, 11]
+mess:
+  missing_months_pct: 0.05
+  duplicate_pct: 0.02
+  name_variant_pct: 0.04
+  incomplete_rows_pct: 0.02
+randomize:
+  districts: 3
+  blocks_per_district: 5
+  overlap_prob: 0.6
+  effect_pool: [vacancy_rise, attendance_decline, infra_gap, unexplained_decline, none, none]
