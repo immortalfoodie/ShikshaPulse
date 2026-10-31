@@ -1,4 +1,5 @@
 """Demo personas, signed session tokens, row-level scoping and audit logging."""
+
 from __future__ import annotations
 
 import base64
@@ -15,22 +16,72 @@ from .config import app_secret
 ROLE_LEVEL = {"headmaster": 0, "block": 1, "district": 2, "state": 3}
 
 PERSONAS = [
-    {"id": "state-spd", "name": "Dr. Meera Iyer", "role": "state", "title": "State Project Director",
-     "scope_type": "state", "scope": None},
-    {"id": "deo-devgarh", "name": "Mr. Chan", "role": "district", "title": "District Education Officer, Devgarh",
-     "scope_type": "district", "scope": "Devgarh"},
-    {"id": "beo-poti", "name": "Romi", "role": "block", "title": "Block Education Officer, Poti",
-     "scope_type": "block", "scope": "Poti"},
-    {"id": "beo-sinda", "name": "Arjun Patel", "role": "block", "title": "Block Education Officer, Sinda",
-     "scope_type": "block", "scope": "Sinda"},
-    {"id": "beo-kerwa", "name": "Kavita Rao", "role": "block", "title": "Block Education Officer, Kerwa",
-     "scope_type": "block", "scope": "Kerwa"},
-    {"id": "crc-kerwa-1", "name": "Meena Kumari", "role": "block", "title": "Cluster Resource Coordinator, Kerwa",
-     "scope_type": "block", "scope": "Kerwa", "crc": True},
-    {"id": "hm-poti-1", "name": "Sunita Verma", "role": "headmaster", "title": "Headmaster, Poti block",
-     "scope_type": "school", "scope": None},
-    {"id": "teacher-poti-1", "name": "Shanti Devi", "role": "headmaster", "title": "Teacher, Poti block",
-     "scope_type": "school", "scope": None, "teacher": True},
+    {
+        "id": "state-spd",
+        "name": "Dr. Meera Iyer",
+        "role": "state",
+        "title": "State Project Director",
+        "scope_type": "state",
+        "scope": None,
+    },
+    {
+        "id": "deo-devgarh",
+        "name": "Mr. Chan",
+        "role": "district",
+        "title": "District Education Officer, Devgarh",
+        "scope_type": "district",
+        "scope": "Devgarh",
+    },
+    {
+        "id": "beo-poti",
+        "name": "Romi",
+        "role": "block",
+        "title": "Block Education Officer, Poti",
+        "scope_type": "block",
+        "scope": "Poti",
+    },
+    {
+        "id": "beo-sinda",
+        "name": "Arjun Patel",
+        "role": "block",
+        "title": "Block Education Officer, Sinda",
+        "scope_type": "block",
+        "scope": "Sinda",
+    },
+    {
+        "id": "beo-kerwa",
+        "name": "Kavita Rao",
+        "role": "block",
+        "title": "Block Education Officer, Kerwa",
+        "scope_type": "block",
+        "scope": "Kerwa",
+    },
+    {
+        "id": "crc-kerwa-1",
+        "name": "Meena Kumari",
+        "role": "block",
+        "title": "Cluster Resource Coordinator, Kerwa",
+        "scope_type": "block",
+        "scope": "Kerwa",
+        "crc": True,
+    },
+    {
+        "id": "hm-poti-1",
+        "name": "Sunita Verma",
+        "role": "headmaster",
+        "title": "Headmaster, Poti block",
+        "scope_type": "school",
+        "scope": None,
+    },
+    {
+        "id": "teacher-poti-1",
+        "name": "Shanti Devi",
+        "role": "headmaster",
+        "title": "Teacher, Poti block",
+        "scope_type": "school",
+        "scope": None,
+        "teacher": True,
+    },
 ]
 
 
@@ -40,8 +91,10 @@ def persona(pid: str) -> dict:
         raise HTTPException(404, "Unknown persona")
     p = dict(p)
     if p["role"] == "headmaster" and db.table_exists("schools"):
-        s = db.query("SELECT udise_code, school_name, block, district FROM schools WHERE block='Poti' "
-                     "ORDER BY udise_code LIMIT 1")
+        s = db.query(
+            "SELECT udise_code, school_name, block, district FROM schools WHERE block='Poti' "
+            "ORDER BY udise_code LIMIT 1"
+        )
         if s:
             p["scope"] = s[0]["udise_code"]
             p["title"] = f"{'Teacher' if p.get('teacher') else 'Headmaster'}, {s[0]['school_name']}"
@@ -156,7 +209,14 @@ def school_scope_filter(user: dict) -> tuple[str, str | None]:
 
 
 def audit(user: dict | None, action: str, detail: dict | str = "") -> None:
-    db.execute("INSERT INTO audit_log (user_id, user_name, role, action, detail, at) VALUES (:i,:n,:r,:a,:d,:t)",
-               {"i": (user or {}).get("id"), "n": (user or {}).get("name"), "r": (user or {}).get("role"),
-                "a": action, "d": detail if isinstance(detail, str) else json.dumps(detail, default=str),
-                "t": datetime.now().isoformat(timespec="seconds")})
+    db.execute(
+        "INSERT INTO audit_log (user_id, user_name, role, action, detail, at) VALUES (:i,:n,:r,:a,:d,:t)",
+        {
+            "i": (user or {}).get("id"),
+            "n": (user or {}).get("name"),
+            "r": (user or {}).get("role"),
+            "a": action,
+            "d": detail if isinstance(detail, str) else json.dumps(detail, default=str),
+            "t": datetime.now().isoformat(timespec="seconds"),
+        },
+    )

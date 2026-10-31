@@ -1,4 +1,5 @@
 """CLI: python -m scenario_lab generate <scenario> [--seed N] [--missing 0.1] ... | list"""
+
 import argparse
 import json
 
@@ -21,8 +22,15 @@ def main() -> None:
     if a.cmd == "list":
         print(json.dumps(list_scenarios(), indent=2))
         return
-    mess = {k: v for k, v in {"missing_months_pct": a.missing, "duplicate_pct": a.duplicates,
-                              "name_variant_pct": a.variants}.items() if v is not None}
+    mess = {
+        k: v
+        for k, v in {
+            "missing_months_pct": a.missing,
+            "duplicate_pct": a.duplicates,
+            "name_variant_pct": a.variants,
+        }.items()
+        if v is not None
+    }
     print(json.dumps(generate(a.scenario, OUT_ROOT, {"seed": a.seed, "mess": mess, "name": a.name}), indent=2))
 
 

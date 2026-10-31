@@ -1,4 +1,5 @@
 """Shared analytics helpers: panel loading (cached per warehouse version), unit filters, metrics."""
+
 from __future__ import annotations
 
 from functools import lru_cache
@@ -9,16 +10,36 @@ import pandas as pd
 from .. import db
 
 METRICS = {
-    "numeracy": {"label": "Foundational numeracy", "unit": "%", "higher_is_better": True, "weight": "students_assessed",
-                 "source": "assessment"},
-    "literacy": {"label": "Foundational literacy", "unit": "%", "higher_is_better": True, "weight": "students_assessed",
-                 "source": "assessment"},
+    "numeracy": {
+        "label": "Foundational numeracy",
+        "unit": "%",
+        "higher_is_better": True,
+        "weight": "students_assessed",
+        "source": "assessment",
+    },
+    "literacy": {
+        "label": "Foundational literacy",
+        "unit": "%",
+        "higher_is_better": True,
+        "weight": "students_assessed",
+        "source": "assessment",
+    },
     "student_att": {"label": "Student attendance", "unit": "%", "higher_is_better": True, "source": "attendance"},
     "teacher_att": {"label": "Teacher attendance", "unit": "%", "higher_is_better": True, "source": "attendance"},
-    "maths_vacancy": {"label": "Maths teacher vacancy", "unit": "%", "higher_is_better": False, "scale": 100,
-                      "source": "teachers"},
-    "infra_index": {"label": "Infrastructure index", "unit": "%", "higher_is_better": True, "scale": 100,
-                    "source": "udise"},
+    "maths_vacancy": {
+        "label": "Maths teacher vacancy",
+        "unit": "%",
+        "higher_is_better": False,
+        "scale": 100,
+        "source": "teachers",
+    },
+    "infra_index": {
+        "label": "Infrastructure index",
+        "unit": "%",
+        "higher_is_better": True,
+        "scale": 100,
+        "source": "udise",
+    },
     "coverage_pct": {"label": "Assessment coverage", "unit": "%", "higher_is_better": True, "source": "assessment"},
 }
 CHILD = {"state": "district", "district": "block", "block": "school", "school": None}
@@ -31,8 +52,17 @@ def _panel(version: int) -> pd.DataFrame:
         return pd.DataFrame()
     p = db.read_df("SELECT * FROM panel")
     for c in p.columns:
-        if c not in ("udise_code", "school_name", "district", "block", "cluster", "academic_year", "provenance",
-                     "assessment_type", "scoring_scale"):
+        if c not in (
+            "udise_code",
+            "school_name",
+            "district",
+            "block",
+            "cluster",
+            "academic_year",
+            "provenance",
+            "assessment_type",
+            "scoring_scale",
+        ):
             p[c] = pd.to_numeric(p[c], errors="coerce")
     # Attendance from too few months is treated as missing evidence, not as a value.
     thin = p.months_reported.fillna(0) < MIN_MONTHS

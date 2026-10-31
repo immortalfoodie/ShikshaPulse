@@ -4,6 +4,7 @@ Handles year formats, wide→long reshaping, percent vs fraction, raw marks vs p
 tagging), Yes/No/Y/N/1/0 facility encodings, date formats and subject/grade spellings. Each
 function returns (frame, transforms) so lineage can record exactly what was done.
 """
+
 from __future__ import annotations
 
 import re
@@ -14,8 +15,20 @@ import pandas as pd
 from .mapper import clean_code
 from .schema import FACILITIES, WIDE_MONTH
 
-MONTHS = {"jan": 1, "feb": 2, "mar": 3, "apr": 4, "may": 5, "jun": 6, "jul": 7, "aug": 8, "sep": 9,
-          "oct": 10, "nov": 11, "dec": 12}
+MONTHS = {
+    "jan": 1,
+    "feb": 2,
+    "mar": 3,
+    "apr": 4,
+    "may": 5,
+    "jun": 6,
+    "jul": 7,
+    "aug": 8,
+    "sep": 9,
+    "oct": 10,
+    "nov": 11,
+    "dec": 12,
+}
 ROMAN = {"i": 1, "ii": 2, "iii": 3, "iv": 4, "v": 5, "vi": 6, "vii": 7, "viii": 8}
 
 
@@ -41,9 +54,10 @@ def academic_year_of(year: int, month: int) -> str:
 
 
 def to_num(s: pd.Series) -> pd.Series:
-    return pd.to_numeric(s.astype(str).str.replace(r"[%,\s]", "", regex=True).replace({"": np.nan, "nan": np.nan,
-                                                                                         "None": np.nan}),
-                         errors="coerce")
+    return pd.to_numeric(
+        s.astype(str).str.replace(r"[%,\s]", "", regex=True).replace({"": np.nan, "nan": np.nan, "None": np.nan}),
+        errors="coerce",
+    )
 
 
 def to_pct(s: pd.Series) -> tuple[pd.Series, bool]:
@@ -54,8 +68,20 @@ def to_pct(s: pd.Series) -> tuple[pd.Series, bool]:
 
 
 def to_bool(s: pd.Series) -> pd.Series:
-    m = {"yes": 1, "y": 1, "1": 1, "true": 1, "available": 1, "functional": 1,
-         "no": 0, "n": 0, "0": 0, "false": 0, "not available": 0, "non-functional": 0}
+    m = {
+        "yes": 1,
+        "y": 1,
+        "1": 1,
+        "true": 1,
+        "available": 1,
+        "functional": 1,
+        "no": 0,
+        "n": 0,
+        "0": 0,
+        "false": 0,
+        "not available": 0,
+        "non-functional": 0,
+    }
     return s.astype(str).str.strip().str.lower().str.replace(r"\.0$", "", regex=True).map(m)
 
 
@@ -136,8 +162,11 @@ def normalise_assessment(df, mapping, year_hint, file_name):
         parts = []
         for col, subj in (("score_maths", "maths"), ("score_language", "language")):
             if col in out:
-                parts.append(out.drop(columns=[c for c in ("score_maths", "score_language") if c in out])
-                             .assign(subject=subj, score=out[col]))
+                parts.append(
+                    out.drop(columns=[c for c in ("score_maths", "score_language") if c in out]).assign(
+                        subject=subj, score=out[col]
+                    )
+                )
         out = pd.concat(parts, ignore_index=True)
         t.append("wide subject columns reshaped to long")
     else:
@@ -161,8 +190,23 @@ def normalise_assessment(df, mapping, year_hint, file_name):
     out["students_assessed"] = to_num(out["students_assessed"]) if "students_assessed" in out else np.nan
     out["assessment_type"] = out["assessment_type"].fillna("unspecified") if "assessment_type" in out else "unspecified"
     out["source"] = file_name
-    cols = ["_row", "udise_code", "school_name", "block", "district", "academic_year", "grade", "subject",
-            "assessment_type", "scoring_scale", "max_marks", "score_raw", "score_pct", "students_assessed", "source"]
+    cols = [
+        "_row",
+        "udise_code",
+        "school_name",
+        "block",
+        "district",
+        "academic_year",
+        "grade",
+        "subject",
+        "assessment_type",
+        "scoring_scale",
+        "max_marks",
+        "score_raw",
+        "score_pct",
+        "students_assessed",
+        "source",
+    ]
     return out.reindex(columns=cols), t
 
 
@@ -178,8 +222,11 @@ def normalise_attendance(df, mapping, year_hint, wide_cols, file_name):
             yy = yy + 2000 if yy < 100 else yy
             who = (m.group(3) or "students").lower()
             field = "teacher_att" if who.startswith(("t", "staff")) else "student_att"
-            recs.append(base[["_row", "udise_code", *[x for x in ("school_name", "block") if x in base]]]
-                        .assign(year=yy, month=mon, field=field, value=to_num(df[c]).values))
+            recs.append(
+                base[["_row", "udise_code", *[x for x in ("school_name", "block") if x in base]]].assign(
+                    year=yy, month=mon, field=field, value=to_num(df[c]).values
+                )
+            )
         long = pd.concat(recs, ignore_index=True)
         idx = [c for c in ["_row", "udise_code", "school_name", "block", "year", "month"] if c in long]
         long["udise_code"] = long["udise_code"].fillna("")
@@ -190,7 +237,7 @@ def normalise_attendance(df, mapping, year_hint, wide_cols, file_name):
         out["days_open"] = np.nan
     else:
         out = base
-        ym = [parse_month(m, cy) for m, cy in zip(out["month"], out.get("cal_year", [None] * len(out)))]
+        ym = [parse_month(m, cy) for m, cy in zip(out["month"], out.get("cal_year", [None] * len(out)), strict=True)]
         out["year"] = [y for y, _ in ym]
         out["month"] = [mo for _, mo in ym]
         t.append("month values parsed to (year, month)")
@@ -205,11 +252,22 @@ def normalise_attendance(df, mapping, year_hint, wide_cols, file_name):
     out = out.dropna(subset=["year", "month"])
     out["year"] = out["year"].astype(int)
     out["month"] = out["month"].astype(int)
-    out["academic_year"] = [academic_year_of(y, m) for y, m in zip(out.year, out.month)]
+    out["academic_year"] = [academic_year_of(y, m) for y, m in zip(out.year, out.month, strict=True)]
     out = out.rename(columns={"student_att": "student_att_pct", "teacher_att": "teacher_att_pct"})
     out["source"] = file_name
-    cols = ["_row", "udise_code", "school_name", "block", "academic_year", "year", "month", "student_att_pct",
-            "teacher_att_pct", "days_open", "source"]
+    cols = [
+        "_row",
+        "udise_code",
+        "school_name",
+        "block",
+        "academic_year",
+        "year",
+        "month",
+        "student_att_pct",
+        "teacher_att_pct",
+        "days_open",
+        "source",
+    ]
     return out.reindex(columns=cols), t
 
 
@@ -230,22 +288,35 @@ def normalise_teachers(df, mapping, year_hint, file_name):
     if "snapshot_date" in out:
         d = out["snapshot_date"].map(parse_date)
         out["snapshot_date"] = d.map(lambda x: x.date().isoformat() if x is not None and not pd.isna(x) else None)
-        out["academic_year"] = d.map(lambda x: academic_year_of(x.year, x.month) if x is not None and not pd.isna(x)
-                                     else year_hint)
+        out["academic_year"] = d.map(
+            lambda x: academic_year_of(x.year, x.month) if x is not None and not pd.isna(x) else year_hint
+        )
         t.append("snapshot dates parsed (mixed formats)")
     else:
         out["snapshot_date"], out["academic_year"] = None, year_hint
     out["source"] = file_name
-    cols = ["_row", "udise_code", "school_name", "block", "academic_year", "snapshot_date", "subject", "sanctioned",
-            "working", "vacant", "source"]
+    cols = [
+        "_row",
+        "udise_code",
+        "school_name",
+        "block",
+        "academic_year",
+        "snapshot_date",
+        "subject",
+        "sanctioned",
+        "working",
+        "vacant",
+        "source",
+    ]
     return out.reindex(columns=cols), t
 
 
 def normalise_udise(df, mapping, year_hint, file_name):
     t = []
     out = _base(df, mapping)
-    out["academic_year"] = out["academic_year"].map(lambda v: norm_year(v, year_hint)) if "academic_year" in out \
-        else year_hint
+    out["academic_year"] = (
+        out["academic_year"].map(lambda v: norm_year(v, year_hint)) if "academic_year" in out else year_hint
+    )
     for f in FACILITIES:
         out[f] = to_bool(out[f]) if f in out else np.nan
     t.append("facility flags standardised to 1/0")
@@ -258,8 +329,22 @@ def normalise_udise(df, mapping, year_hint, file_name):
     present = [f for f in FACILITIES if out[f].notna().any()]
     out["infra_index"] = out[present].mean(axis=1) if present else np.nan
     out["source"] = file_name
-    cols = ["_row", "udise_code", "school_name", "district", "block", "cluster", "management", "rural",
-            "academic_year", "enrolment", "grade3_enrolment", *FACILITIES, "infra_index", "source"]
+    cols = [
+        "_row",
+        "udise_code",
+        "school_name",
+        "district",
+        "block",
+        "cluster",
+        "management",
+        "rural",
+        "academic_year",
+        "enrolment",
+        "grade3_enrolment",
+        *FACILITIES,
+        "infra_index",
+        "source",
+    ]
     return out.reindex(columns=cols), t
 
 
@@ -271,6 +356,7 @@ def normalise_context(df, mapping, year_hint, file_name):
     out["end"] = e.map(lambda x: x.date().isoformat() if x is not None else None)
     out["academic_year"] = s.map(lambda x: academic_year_of(x.year, x.month) if x is not None else year_hint)
     out["teacher_days_lost"] = to_num(out["teacher_days_lost"]).fillna(0) if "teacher_days_lost" in out else 0
-    out["source"] = out["source"] if "source" in out else file_name
+    if "source" not in out:
+        out["source"] = file_name
     cols = ["district", "block", "event", "start", "end", "academic_year", "teacher_days_lost", "source"]
     return out.reindex(columns=cols), ["dates parsed; academic year derived"]

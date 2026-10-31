@@ -1,5 +1,6 @@
 """Teacher-sharing suggestions: pair schools with empty maths posts with nearby schools (same cluster,
 else same block) that have comfortable maths staffing. A proposal for the officer — never an order."""
+
 from __future__ import annotations
 
 import numpy as np
@@ -31,14 +32,34 @@ def suggestions(unit_type: str, unit: str | None, schools: list[str] | None = No
                 continue
             d = pool.iloc[0]
             used[d.udise_code] = used.get(d.udise_code, 0) + 1
-            pairs.append({
-                "receiver": {"udise_code": r.udise_code, "school_name": r.school_name, "vacant": int(r.maths_vacant),
-                             "sanctioned": int(r.maths_sanctioned), "enrolment": int(r.enrolment or 0)},
-                "donor": {"udise_code": d.udise_code, "school_name": d.school_name, "working": int(d.working),
-                          "enrolment": int(d.enrolment or 0), "load": round(float(d.load), 0)},
-                "scope": scope, "cluster": r.cluster, "block": blk, "days_per_week": 2,
-            })
+            pairs.append(
+                {
+                    "receiver": {
+                        "udise_code": r.udise_code,
+                        "school_name": r.school_name,
+                        "vacant": int(r.maths_vacant),
+                        "sanctioned": int(r.maths_sanctioned),
+                        "enrolment": int(r.enrolment or 0),
+                    },
+                    "donor": {
+                        "udise_code": d.udise_code,
+                        "school_name": d.school_name,
+                        "working": int(d.working),
+                        "enrolment": int(d.enrolment or 0),
+                        "load": round(float(d.load), 0),
+                    },
+                    "scope": scope,
+                    "cluster": r.cluster,
+                    "block": blk,
+                    "days_per_week": 2,
+                }
+            )
     pairs = pairs[:limit]
-    return {"unit": unit, "year": y1, "receivers": int(len(receivers)), "pairs": pairs,
-            "method": "Donor = 2+ working maths teachers and pupils per maths teacher at most 60% of the block median. "
-                      "Same cluster preferred. Suggested as part-time sharing (2 days/week) for officer review."}
+    return {
+        "unit": unit,
+        "year": y1,
+        "receivers": len(receivers),
+        "pairs": pairs,
+        "method": "Donor = 2+ working maths teachers and pupils per maths teacher at most 60% of the block median. "
+        "Same cluster preferred. Suggested as part-time sharing (2 days/week) for officer review.",
+    }

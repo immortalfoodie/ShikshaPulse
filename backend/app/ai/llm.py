@@ -3,6 +3,7 @@
 If no key is configured, or a call fails, callers fall back to deterministic logic, so the
 platform never depends on the LLM being reachable.
 """
+
 from __future__ import annotations
 
 import json
@@ -46,8 +47,14 @@ class LLMClient:
         self.api_key = os.getenv("LLM_API_KEY", "").strip()
         self.fallback_key = os.getenv("LLM_API_KEY_FALLBACK", "").strip()
         self.disabled = os.getenv("LLM_DISABLED", "").lower() in ("1", "true", "yes")
-        self.stats = {"calls": 0, "errors": 0, "last_error": None, "last_latency_ms": None,
-                      "key_switches": 0, "active_key": "primary"}
+        self.stats = {
+            "calls": 0,
+            "errors": 0,
+            "last_error": None,
+            "last_latency_ms": None,
+            "key_switches": 0,
+            "active_key": "primary",
+        }
         self._clients: dict[tuple[str, float | None, int], object] = {}
         self._rest_until: dict[str, float] = {}
         self._lock = threading.Lock()
@@ -65,9 +72,14 @@ class LLMClient:
 
     def status(self) -> dict:
         # never include the keys themselves
-        return {"provider": self.provider, "model": self.model, "available": self.available,
-                "mode": "live" if self.available else "deterministic-fallback",
-                "keys_configured": len(self.keys), **self.stats}
+        return {
+            "provider": self.provider,
+            "model": self.model,
+            "available": self.available,
+            "mode": "live" if self.available else "deterministic-fallback",
+            "keys_configured": len(self.keys),
+            **self.stats,
+        }
 
     def _order(self) -> list[tuple[str, str]]:
         """Healthy keys first (in configured order), then rested ones as a last resort."""
@@ -80,12 +92,18 @@ class LLMClient:
         ck = (key, timeout, retries)
         if ck not in self._clients:
             from openai import OpenAI
-            self._clients[ck] = OpenAI(base_url=self.base_url, api_key=key, timeout=timeout or 45,
-                                       max_retries=retries)
+
+            self._clients[ck] = OpenAI(base_url=self.base_url, api_key=key, timeout=timeout or 45, max_retries=retries)
         return self._clients[ck]
 
-    def chat(self, messages: list[dict], tools: list[dict] | None = None, temperature: float = 0.1,
-             json_mode: bool = False, timeout: float | None = None):
+    def chat(
+        self,
+        messages: list[dict],
+        tools: list[dict] | None = None,
+        temperature: float = 0.1,
+        json_mode: bool = False,
+        timeout: float | None = None,
+    ):
         """Returns the assistant message object, or raises on failure (after trying every key)."""
         if not self.available:
             raise RuntimeError("LLM not configured")
@@ -107,7 +125,7 @@ class LLMClient:
             client = self._get(key, timeout, retries)
             try:
                 resp = self._create(client, kw)
-            except Exception as e:  # noqa: BLE001
+            except Exception as e:
                 last_exc = e
                 code = _status_of(e)
                 if code in _SWITCH_STATUS and not is_last:
@@ -128,15 +146,16 @@ class LLMClient:
     def _create(client, kw: dict):
         try:
             return client.chat.completions.create(**kw)
-        except Exception as e:  # noqa: BLE001
+        except Exception as e:
             # some OpenAI-compatible endpoints reject response_format: retry once without it
             if "response_format" in kw and _status_of(e) not in _SWITCH_STATUS:
                 return client.chat.completions.create(**{k: v for k, v in kw.items() if k != "response_format"})
             raise
 
     def complete_json(self, system: str, user: str, timeout: float | None = None) -> dict:
-        msg = self.chat([{"role": "system", "content": system}, {"role": "user", "content": user}], json_mode=True,
-                        timeout=timeout)
+        msg = self.chat(
+            [{"role": "system", "content": system}, {"role": "user", "content": user}], json_mode=True, timeout=timeout
+        )
         return parse_json(msg.content or "")
 
     def _fail(self, e: Exception) -> None:

@@ -1,19 +1,21 @@
 """Primary -> fallback API key rotation (no network: fake clients)."""
+
 from types import SimpleNamespace
 
 import pytest
 
 
-class _RateLimited(Exception):
+class _RateLimitedError(Exception):
     status_code = 429
 
 
-class _BadRequest(Exception):
+class _BadRequestError(Exception):
     status_code = 400
 
 
 def _client_with(behaviour, monkeypatch):
     from app.ai.llm import LLMClient
+
     c = LLMClient()
     c.api_key, c.fallback_key, c.disabled = "key-A", "key-B", False
     used = []
@@ -25,6 +27,7 @@ def _client_with(behaviour, monkeypatch):
             if err:
                 raise err()
             return SimpleNamespace(choices=[SimpleNamespace(message=SimpleNamespace(content=key, tool_calls=None))])
+
         return SimpleNamespace(chat=SimpleNamespace(completions=SimpleNamespace(create=create)))
 
     monkeypatch.setattr(c, "_get", fake_get)
@@ -32,7 +35,7 @@ def _client_with(behaviour, monkeypatch):
 
 
 def test_rate_limited_primary_switches_to_fallback_and_rests(monkeypatch):
-    c, used = _client_with({"key-A": _RateLimited}, monkeypatch)
+    c, used = _client_with({"key-A": _RateLimitedError}, monkeypatch)
     assert c.chat([{"role": "user", "content": "hi"}]).content == "key-B"
     assert used == [("key-A", 0), ("key-B", 2)]  # no SDK back-off on the rate-limited key
     assert c.status()["active_key"] == "fallback" and c.status()["key_switches"] == 1
@@ -43,20 +46,20 @@ def test_rate_limited_primary_switches_to_fallback_and_rests(monkeypatch):
 
 
 def test_non_retryable_error_does_not_switch(monkeypatch):
-    c, used = _client_with({"key-A": _BadRequest}, monkeypatch)
-    with pytest.raises(_BadRequest):
+    c, used = _client_with({"key-A": _BadRequestError}, monkeypatch)
+    with pytest.raises(_BadRequestError):
         c.chat([{"role": "user", "content": "hi"}])
     assert [k for k, _ in used] == ["key-A"]
 
 
 def test_both_keys_limited_raises_so_offline_engine_answers(monkeypatch):
-    c, _ = _client_with({"key-A": _RateLimited, "key-B": _RateLimited}, monkeypatch)
-    with pytest.raises(_RateLimited):
+    c, _ = _client_with({"key-A": _RateLimitedError, "key-B": _RateLimitedError}, monkeypatch)
+    with pytest.raises(_RateLimitedError):
         c.chat([{"role": "user", "content": "hi"}])
     assert c.stats["errors"] == 1
 
 
 def test_single_key_still_works(monkeypatch):
-    c, used = _client_with({}, monkeypatch)
+    c, _ = _client_with({}, monkeypatch)
     c.fallback_key = ""
     assert c.chat([{"role": "user", "content": "hi"}]).content == "key-A" and c.status()["keys_configured"] == 1

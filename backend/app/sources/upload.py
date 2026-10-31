@@ -1,7 +1,9 @@
 """Department adapter: files uploaded through Data Studio (provenance: department_uploaded)."""
+
 from __future__ import annotations
 
 from pathlib import Path
+from typing import ClassVar
 
 from ..config import provenance_for, settings
 from .base import RawDataset, SourceAdapter
@@ -11,8 +13,12 @@ from .readers import kind_hint_from_name, read_table, year_hint_from_name
 class UploadAdapter(SourceAdapter):
     key = "upload"
     label = "Department file upload"
-    requirements = {"access": "authenticated district/state officer", "fields": "any subset of canonical fields",
-                    "coverage": "whatever the department holds", "refresh": "manual upload"}
+    requirements: ClassVar[dict[str, str]] = {
+        "access": "authenticated district/state officer",
+        "fields": "any subset of canonical fields",
+        "coverage": "whatever the department holds",
+        "refresh": "manual upload",
+    }
 
     def __init__(self, batch: str = "current"):
         self.dir = Path(settings()["uploads_path"]) / batch
@@ -34,6 +40,15 @@ class UploadAdapter(SourceAdapter):
         return sorted(p for p in self.dir.iterdir() if p.suffix.lower() in (".csv", ".xlsx", ".xls"))
 
     def fetch(self) -> list[RawDataset]:
-        return [RawDataset(name=p.name, frame=read_table(p), source_ref=str(p), adapter=self.key,
-                           provenance=provenance_for(self.key), year_hint=year_hint_from_name(p.name),
-                           kind_hint=kind_hint_from_name(p.name)) for p in self.files()]
+        return [
+            RawDataset(
+                name=p.name,
+                frame=read_table(p),
+                source_ref=str(p),
+                adapter=self.key,
+                provenance=provenance_for(self.key),
+                year_hint=year_hint_from_name(p.name),
+                kind_hint=kind_hint_from_name(p.name),
+            )
+            for p in self.files()
+        ]

@@ -39,7 +39,9 @@ export default function App() {
   return (
     <Layout>
       {!meta.ready ? (
-        <Routes><Route path="*" element={<DataStudio />} /></Routes>
+        <Routes>
+          <Route path="*" element={<DataStudio />} />
+        </Routes>
       ) : (
         <Routes>
           <Route path="/" element={user.crc ? <Visits /> : <CommandCenter />} />

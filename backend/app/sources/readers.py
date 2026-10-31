@@ -1,4 +1,5 @@
 """Robust tabular readers: CSV/XLSX, title/banner rows, header detection, year hints."""
+
 from __future__ import annotations
 
 import re
@@ -6,8 +7,20 @@ from pathlib import Path
 
 import pandas as pd
 
-MONTHS = {"jan": 1, "feb": 2, "mar": 3, "apr": 4, "may": 5, "jun": 6, "jul": 7, "aug": 8, "sep": 9,
-          "oct": 10, "nov": 11, "dec": 12}
+MONTHS = {
+    "jan": 1,
+    "feb": 2,
+    "mar": 3,
+    "apr": 4,
+    "may": 5,
+    "jun": 6,
+    "jul": 7,
+    "aug": 8,
+    "sep": 9,
+    "oct": 10,
+    "nov": 11,
+    "dec": 12,
+}
 
 
 def _detect_header(raw: pd.DataFrame) -> int:
@@ -26,8 +39,11 @@ def read_table(path: Path) -> pd.DataFrame:
     path = Path(path)
     if path.suffix.lower() in (".xlsx", ".xls"):
         xl = pd.ExcelFile(path)
-        sheet = "Data" if "Data" in xl.sheet_names else next(
-            (s for s in xl.sheet_names if s.lower() not in ("about", "readme")), xl.sheet_names[0])
+        sheet = (
+            "Data"
+            if "Data" in xl.sheet_names
+            else next((s for s in xl.sheet_names if s.lower() not in ("about", "readme")), xl.sheet_names[0])
+        )
         raw = pd.read_excel(xl, sheet_name=sheet, header=None, dtype=str)
     else:
         lines = Path(path).read_text(encoding="utf-8-sig").splitlines()
@@ -38,11 +54,12 @@ def read_table(path: Path) -> pd.DataFrame:
         while start < len(lines) - 1 and (lines[start].count(",") < 0.6 * maxw or not lines[start].strip()):
             start += 1
         from io import StringIO
+
         raw = pd.read_csv(StringIO("\n".join(lines[start:])), header=None, dtype=str, keep_default_na=True)
     raw = raw.dropna(how="all").reset_index(drop=True)
     h = _detect_header(raw)
     cols = [str(c).strip() if pd.notna(c) else f"col_{j}" for j, c in enumerate(raw.iloc[h])]
-    df = raw.iloc[h + 1:].copy()
+    df = raw.iloc[h + 1 :].copy()
     df.columns = cols
     df = df.dropna(how="all")
     df = df.loc[:, [c for c in df.columns if not (c.startswith("col_") and df[c].isna().all())]]
@@ -71,9 +88,13 @@ def year_hint_from_name(name: str) -> str | None:
 
 def kind_hint_from_name(name: str) -> str | None:
     s = name.lower()
-    for kind, keys in [("context", ["context", "calendar", "event"]), ("attendance", ["attend"]),
-                       ("teachers", ["teacher", "vacanc", "position", "staff"]), ("udise", ["udise"]),
-                       ("assessment", ["assess", "fln", "nas", "result", "slas"])]:
+    for kind, keys in [
+        ("context", ["context", "calendar", "event"]),
+        ("attendance", ["attend"]),
+        ("teachers", ["teacher", "vacanc", "position", "staff"]),
+        ("udise", ["udise"]),
+        ("assessment", ["assess", "fln", "nas", "result", "slas"]),
+    ]:
         if any(k in s for k in keys):
             return kind
     return None

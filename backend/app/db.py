@@ -1,4 +1,5 @@
 """Warehouse access. SQLite via SQLAlchemy so the same code can point at Postgres in deployment."""
+
 from __future__ import annotations
 
 import json
@@ -64,7 +65,7 @@ def engine() -> Engine:
         _engine = create_engine(f"sqlite:///{path}", connect_args={"check_same_thread": False})
 
         @event.listens_for(_engine, "connect")
-        def _pragmas(dbapi_conn, _):  # noqa: ANN001
+        def _pragmas(dbapi_conn, _):
             cur = dbapi_conn.cursor()
             cur.execute("PRAGMA journal_mode=WAL")
             cur.execute("PRAGMA synchronous=NORMAL")

@@ -1,4 +1,5 @@
 """Source adapter registry."""
+
 from __future__ import annotations
 
 from ..config import active_adapters
@@ -29,4 +30,4 @@ def describe_all() -> list[dict]:
     return [{**cls().describe(), "active": k in act} for k, cls in REGISTRY.items()]
 
 
-__all__ = ["RawDataset", "SourceAdapter", "get_adapter", "active", "describe_all"]
+__all__ = ["RawDataset", "SourceAdapter", "active", "describe_all", "get_adapter"]

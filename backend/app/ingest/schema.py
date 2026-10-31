@@ -1,4 +1,5 @@
 """Canonical schema: target fields per dataset kind, with known header synonyms."""
+
 from __future__ import annotations
 
 import re
@@ -28,8 +29,14 @@ CANONICAL: dict[str, dict[str, list[str]]] = {
         "block": ["block", "block name"],
         "month": ["month", "month name", "period"],
         "cal_year": ["yr", "calendar year", "year"],
-        "student_att": ["student att %", "student attendance", "student attendance %", "avg attendance",
-                        "attendance %", "stu att"],
+        "student_att": [
+            "student att %",
+            "student attendance",
+            "student attendance %",
+            "avg attendance",
+            "attendance %",
+            "stu att",
+        ],
         "teacher_att": ["teacher att %", "teacher attendance", "teacher attendance %", "tch att"],
         "days_open": ["working days", "days", "days open", "school days"],
     },
@@ -73,17 +80,38 @@ CANONICAL: dict[str, dict[str, list[str]]] = {
 }
 
 FIELD_HELP = {
-    "udise_code": "11-digit UDISE+ school code", "school_name": "School name", "district": "District name",
-    "block": "Block name", "academic_year": "Academic year e.g. 2024-25", "grade": "Grade/class",
-    "subject": "Subject name", "score": "Average score (long format)", "score_maths": "Maths score (wide)",
-    "score_language": "Language score (wide)", "max_marks": "Maximum marks / scale",
-    "students_assessed": "Number of students assessed", "assessment_type": "Assessment instrument",
-    "month": "Month (name, number or YYYY-MM)", "cal_year": "Calendar year", "student_att": "Student attendance",
-    "teacher_att": "Teacher attendance", "days_open": "Working days", "sanctioned": "Sanctioned posts",
-    "working": "Teachers in position", "vacant": "Vacant posts", "snapshot_date": "Snapshot date",
-    "cluster": "Cluster", "management": "Management", "location": "Rural/Urban", "enrolment": "Total enrolment",
-    "grade3_enrolment": "Grade 3 enrolment", "event": "Event", "start": "Start date", "end": "End date",
-    "teacher_days_lost": "Teacher-days lost", "source": "Source",
+    "udise_code": "11-digit UDISE+ school code",
+    "school_name": "School name",
+    "district": "District name",
+    "block": "Block name",
+    "academic_year": "Academic year e.g. 2024-25",
+    "grade": "Grade/class",
+    "subject": "Subject name",
+    "score": "Average score (long format)",
+    "score_maths": "Maths score (wide)",
+    "score_language": "Language score (wide)",
+    "max_marks": "Maximum marks / scale",
+    "students_assessed": "Number of students assessed",
+    "assessment_type": "Assessment instrument",
+    "month": "Month (name, number or YYYY-MM)",
+    "cal_year": "Calendar year",
+    "student_att": "Student attendance",
+    "teacher_att": "Teacher attendance",
+    "days_open": "Working days",
+    "sanctioned": "Sanctioned posts",
+    "working": "Teachers in position",
+    "vacant": "Vacant posts",
+    "snapshot_date": "Snapshot date",
+    "cluster": "Cluster",
+    "management": "Management",
+    "location": "Rural/Urban",
+    "enrolment": "Total enrolment",
+    "grade3_enrolment": "Grade 3 enrolment",
+    "event": "Event",
+    "start": "Start date",
+    "end": "End date",
+    "teacher_days_lost": "Teacher-days lost",
+    "source": "Source",
     **{f: f"Facility: {f.replace('_', ' ')}" for f in FACILITIES},
 }
 
@@ -97,7 +125,9 @@ REQUIRED = {
 
 WIDE_MONTH = re.compile(
     r"^(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*[\s\-_']*(\d{2,4})\s*[\(\-_ ]*\s*"
-    r"(students?|stu|pupils?|teachers?|tch|staff)?\)?$", re.I)
+    r"(students?|stu|pupils?|teachers?|tch|staff)?\)?$",
+    re.I,
+)
 
 
 def norm_header(h: str) -> str:

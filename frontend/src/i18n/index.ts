@@ -21,10 +21,19 @@ export const LANGS: { code: Lang; native: string; english: string; speech: strin
 ]
 
 const DICTS: Record<Lang, Record<string, string>> = {
-  en: { ...en, ...enX, ...enG }, hi: { ...hi, ...hiX, ...hiG }, mr: { ...mr, ...mrX, ...mrG }, bn: { ...bn, ...bnX, ...bnG }, ta: { ...ta, ...taX, ...taG }, te: { ...te, ...teX, ...teG },
+  en: { ...en, ...enX, ...enG },
+  hi: { ...hi, ...hiX, ...hiG },
+  mr: { ...mr, ...mrX, ...mrG },
+  bn: { ...bn, ...bnX, ...bnG },
+  ta: { ...ta, ...taX, ...taG },
+  te: { ...te, ...teX, ...teG },
 } as Record<Lang, Record<string, string>>
 
-export function translate(lang: Lang, key: Key | string, vars?: Record<string, string | number | null | undefined>): string {
+export function translate(
+  lang: Lang,
+  key: Key | string,
+  vars?: Record<string, string | number | null | undefined>,
+): string {
   const s = DICTS[lang][key] ?? DICTS.en[key] ?? String(key)
   if (!vars) return s
   return s.replace(/\{(\w+)\}/g, (_, k) => (vars[k] === undefined || vars[k] === null ? '' : String(vars[k])))
@@ -35,7 +44,10 @@ export const speechCode = (lang: Lang) => LANGS.find((l) => l.code === lang)?.sp
 
 /** Font stack per script (bundled @fontsource fonts). */
 export const fontFor = (lang: Lang) =>
-  lang === 'ta' ? '"Noto Sans Tamil", "Mukta", system-ui, sans-serif'
-    : lang === 'te' ? '"Noto Sans Telugu", "Mukta", system-ui, sans-serif'
-      : lang === 'bn' ? '"Noto Sans Bengali", "Mukta", system-ui, sans-serif'
+  lang === 'ta'
+    ? '"Noto Sans Tamil", "Mukta", system-ui, sans-serif'
+    : lang === 'te'
+      ? '"Noto Sans Telugu", "Mukta", system-ui, sans-serif'
+      : lang === 'bn'
+        ? '"Noto Sans Bengali", "Mukta", system-ui, sans-serif'
         : '"Mukta", system-ui, "Segoe UI", sans-serif'

@@ -1,0 +1,44 @@
+[project]
+name = "shikshapulse-backend"
+version = "1.0.0"
+description = "ShikshaPulse: district/block education diagnostics and accountable-action API."
+requires-python = ">=3.11"
+
+# ---------------------------------------------------------------- lint / format
+[tool.ruff]
+line-length = 120
+target-version = "py311"
+extend-exclude = ["data", ".venv"]
+
+[tool.ruff.lint]
+select = [
+    "E", "W",   # pycodestyle
+    "F",        # pyflakes
+    "I",        # isort
+    "N",        # pep8-naming
+    "B",        # bugbear
+    "UP",       # pyupgrade
+    "SIM",      # simplify
+    "C4",       # comprehensions
+    "RUF",      # ruff-specific
+    "PLE", "PLW",  # pylint errors / warnings
+]
+ignore = [
+    "E501",     # long lines are handled by the formatter; remaining ones are prose/user-facing strings
+    "B008",     # FastAPI's Depends()/Body()/Query() in defaults is the framework idiom
+    "RUF001", "RUF002", "RUF003",  # intentional unicode (en dash, arrows, Indic scripts) in copy
+    "PLW0603",  # module-level caches are reset via `global` deliberately
+    "N803", "N806",  # ML conventions: X, y, X_train
+]
+
+[tool.ruff.lint.isort]
+known-first-party = ["app", "eval", "scenario_lab"]
+
+[tool.ruff.format]
+quote-style = "double"
+line-ending = "lf"
+
+# ---------------------------------------------------------------- tests
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"

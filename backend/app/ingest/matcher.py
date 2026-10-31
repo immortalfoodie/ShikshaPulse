@@ -4,6 +4,7 @@ Order: valid UDISE code → exact normalised name within block → distinctive-t
 match → fuzzy name within block. Anything below the auto threshold, or ambiguous between
 candidates, is sent to the human review queue instead of being silently guessed.
 """
+
 from __future__ import annotations
 
 import re
@@ -11,8 +12,12 @@ import re
 import pandas as pd
 from rapidfuzz import fuzz, process
 
-ACRONYMS = {"gps": "government primary school", "gups": "government upper primary school",
-            "zpps": "zilla parishad primary school", "mps": "municipal primary school"}
+ACRONYMS = {
+    "gps": "government primary school",
+    "gups": "government upper primary school",
+    "zpps": "zilla parishad primary school",
+    "mps": "municipal primary school",
+}
 REPLACEMENTS = [
     (r"\b(govt|gov|government)\b", "government"),
     (r"\b(pri|pry|prim)\b", "primary"),
@@ -22,8 +27,19 @@ REPLACEMENTS = [
     (r"\bu p\b", "upper primary"),
     (r"\bp s\b", "primary school"),
 ]
-GENERIC = {"government", "primary", "school", "upper", "zilla", "parishad", "municipal", "kasturba",
-           "middle", "high", "secondary"}
+GENERIC = {
+    "government",
+    "primary",
+    "school",
+    "upper",
+    "zilla",
+    "parishad",
+    "municipal",
+    "kasturba",
+    "middle",
+    "high",
+    "secondary",
+}
 
 
 def norm_name(name: str) -> str:
@@ -52,14 +68,17 @@ class SchoolRegistry:
         self.df["norm"] = self.df.school_name.map(norm_name)
         self.df["dist"] = self.df.norm.map(distinctive)
         self.df["block_key"] = self.df.block.str.casefold()
-        self.by_block = {b: g for b, g in self.df.groupby("block_key")}
-        self.name_of = dict(zip(self.df.udise_code, self.df.school_name))
-        self.block_of = dict(zip(self.df.udise_code, self.df.block))
-        self.district_of = dict(zip(self.df.udise_code, self.df.district))
+        self.by_block = dict(iter(self.df.groupby("block_key")))
+        self.name_of = dict(zip(self.df.udise_code, self.df.school_name, strict=True))
+        self.block_of = dict(zip(self.df.udise_code, self.df.block, strict=True))
+        self.district_of = dict(zip(self.df.udise_code, self.df.district, strict=True))
 
     def summary(self) -> dict:
-        return {"schools": len(self.df), "blocks": sorted(self.df.block.unique().tolist()),
-                "districts": sorted(self.df.district.unique().tolist())}
+        return {
+            "schools": len(self.df),
+            "blocks": sorted(self.df.block.unique().tolist()),
+            "districts": sorted(self.df.district.unique().tolist()),
+        }
 
     def match_one(self, name: str | None, block: str | None) -> dict:
         """Returns {udise_code, method, confidence, candidates}."""
@@ -71,8 +90,12 @@ class SchoolRegistry:
         n = norm_name(name)
         exact = pool[pool.norm == n]
         if len(exact) == 1:
-            return {"udise_code": exact.udise_code.iloc[0], "method": "normalised_name", "confidence": 0.97,
-                    "candidates": []}
+            return {
+                "udise_code": exact.udise_code.iloc[0],
+                "method": "normalised_name",
+                "confidence": 0.97,
+                "candidates": [],
+            }
         # Distinctive-token (village) match: unique village and compatible school type.
         d = distinctive(n)
         cands = []
@@ -88,23 +111,43 @@ class SchoolRegistry:
                 compatible = not tt_rec or tt_rec <= tt_reg or tt_reg <= tt_rec
                 conf = (0.93 if sc == 100 else 0.88) if compatible else 0.75
                 if conf >= self.auto:
-                    return {"udise_code": r.udise_code, "method": "village_token" if sc == 100 else "fuzzy_village",
-                            "confidence": conf, "candidates": []}
+                    return {
+                        "udise_code": r.udise_code,
+                        "method": "village_token" if sc == 100 else "fuzzy_village",
+                        "confidence": conf,
+                        "candidates": [],
+                    }
         # Full-name fuzzy as a last resort; ambiguous or weak results go to review.
         full = process.extract(n, pool.norm.tolist(), scorer=fuzz.token_sort_ratio, limit=3)
-        top = [{"udise_code": pool.iloc[i].udise_code, "school_name": pool.iloc[i].school_name,
-                "block": pool.iloc[i].block, "score": round(s, 1)} for _, s, i in full]
+        top = [
+            {
+                "udise_code": pool.iloc[i].udise_code,
+                "school_name": pool.iloc[i].school_name,
+                "block": pool.iloc[i].block,
+                "score": round(s, 1),
+            }
+            for _, s, i in full
+        ]
         if top and top[0]["score"] >= 93 and (len(top) == 1 or top[0]["score"] - top[1]["score"] >= 6):
-            return {"udise_code": top[0]["udise_code"], "method": "fuzzy_name",
-                    "confidence": round(top[0]["score"] / 100, 2), "candidates": top}
+            return {
+                "udise_code": top[0]["udise_code"],
+                "method": "fuzzy_name",
+                "confidence": round(top[0]["score"] / 100, 2),
+                "candidates": top,
+            }
         seen = {c["udise_code"] for c in top}
         for sc, r in cands[:3]:
             if r.udise_code not in seen:
-                top.append({"udise_code": r.udise_code, "school_name": r.school_name, "block": r.block,
-                            "score": round(sc, 1)})
+                top.append(
+                    {"udise_code": r.udise_code, "school_name": r.school_name, "block": r.block, "score": round(sc, 1)}
+                )
         top = sorted(top, key=lambda c: -c["score"])[:4]
-        return {"udise_code": None, "method": "review", "confidence": round((top[0]["score"] if top else 0) / 100, 2),
-                "candidates": top}
+        return {
+            "udise_code": None,
+            "method": "review",
+            "confidence": round((top[0]["score"] if top else 0) / 100, 2),
+            "candidates": top,
+        }
 
     def match_frame(self, df: pd.DataFrame) -> tuple[pd.DataFrame, list[dict]]:
         """Resolve udise_code for every row. Returns (matched_rows, review_groups)."""
@@ -122,18 +165,29 @@ class SchoolRegistry:
             for name, block in keys.itertuples(index=False):
                 results[(name, block)] = self.match_one(name or None, block or None)
             for idx, row in todo.iterrows():
-                r = results[(row.school_name or "" if pd.notna(row.school_name) else "",
-                             row.block or "" if pd.notna(row.block) else "")]
+                r = results[
+                    (
+                        row.school_name or "" if pd.notna(row.school_name) else "",
+                        row.block or "" if pd.notna(row.block) else "",
+                    )
+                ]
                 if r["udise_code"] and r["confidence"] >= self.auto:
                     df.at[idx, "udise_code"] = r["udise_code"]
                     df.at[idx, "match_method"] = r["method"]
                     df.at[idx, "match_confidence"] = r["confidence"]
             unresolved = df.loc[todo.index][df.loc[todo.index, "match_method"].isna()]
-            for (name, block), g in unresolved.groupby([unresolved.school_name.fillna(""),
-                                                         unresolved.block.fillna("")]):
+            for (name, block), g in unresolved.groupby(
+                [unresolved.school_name.fillna(""), unresolved.block.fillna("")]
+            ):
                 r = results[(name, block)]
-                reviews.append({"name_variant": name, "block": block, "candidates": r["candidates"],
-                                "rows": g.drop(columns=["match_method", "match_confidence"])})
+                reviews.append(
+                    {
+                        "name_variant": name,
+                        "block": block,
+                        "candidates": r["candidates"],
+                        "rows": g.drop(columns=["match_method", "match_confidence"]),
+                    }
+                )
         matched = df[df.match_method.notna()].copy()
         matched["block"] = matched.udise_code.map(self.block_of)
         matched["school_name"] = matched.udise_code.map(self.name_of)

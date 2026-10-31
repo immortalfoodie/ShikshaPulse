@@ -3,7 +3,10 @@
 Not callable in the hackathon build. Documents what a real integration needs so the
 department can plan access. We do not assume the public API exposes every field below.
 """
+
 from __future__ import annotations
+
+from typing import ClassVar
 
 from .base import RawDataset, SourceAdapter
 
@@ -12,7 +15,7 @@ class UdiseApiAdapter(SourceAdapter):
     key = "udise_api"
     label = "UDISE+ API (authorised integration — not enabled)"
     available = False
-    requirements = {
+    requirements: ClassVar[dict[str, str]] = {
         "access": "Registration on the UDISE+ API / Data Sharing portal; MoE or state approval; per-deployment key",
         "fields": "school profile, enrolment by grade, facilities, teacher counts (keyed by UDISE code)",
         "not_assumed": "subject-wise teacher vacancy and monthly attendance are typically NOT available in UDISE+",

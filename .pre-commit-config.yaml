@@ -1,0 +1,20 @@
+repos:
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.15.12
+    hooks:
+      - id: ruff
+        args: [--fix, --config, backend/pyproject.toml]
+        files: ^backend/
+      - id: ruff-format
+        args: [--config, backend/pyproject.toml]
+        files: ^backend/
+
+  - repo: local
+    hooks:
+      - id: frontend-lint
+        name: frontend oxlint & prettier check
+        entry: bash -c "cd frontend && npm run lint && npm run format:check && npm run typecheck"
+        language: system
+        files: ^frontend/src/
+        pass_filenames: false
+

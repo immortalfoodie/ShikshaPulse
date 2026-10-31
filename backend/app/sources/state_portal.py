@@ -1,5 +1,8 @@
 """State attendance / teacher-HR portal connector — STUB for authorised deployment."""
+
 from __future__ import annotations
+
+from typing import ClassVar
 
 from .base import RawDataset, SourceAdapter
 
@@ -8,7 +11,7 @@ class StatePortalAdapter(SourceAdapter):
     key = "state_portal"
     label = "State attendance & teacher-HR portal (authorised integration — not enabled)"
     available = False
-    requirements = {
+    requirements: ClassVar[dict[str, str]] = {
         "access": "MoU or data-sharing order from the State Education Department; read-only service credentials",
         "fields": "monthly student & teacher attendance by school; sanctioned/working posts by subject",
         "not_assumed": "formats differ by state; election-duty deployment may sit with the District Election Office",

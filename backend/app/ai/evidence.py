@@ -1,7 +1,12 @@
 """Per-request evidence store. Every analytics result the AI sees gets a citable id (E1, E2, ...)."""
+
 from __future__ import annotations
 
+import re
 from typing import Any
+
+# Numbers embedded in free text (e.g. "dropped 4.5 pp"), ignoring digits inside identifiers.
+EMBEDDED_NUMBER_RE = re.compile(r"(?<![\w.])-?\d+(?:\.\d+)?")
 
 
 class EvidenceStore:
@@ -9,12 +14,28 @@ class EvidenceStore:
         self.items: dict[str, dict] = {}
         self._n = 0
 
-    def add(self, kind: str, title: str, data: dict, period: str | None = None, ev_type: str = "observed_fact",
-            source: list[str] | str | None = None, link: dict | None = None) -> str:
+    def add(
+        self,
+        kind: str,
+        title: str,
+        data: dict,
+        period: str | None = None,
+        ev_type: str = "observed_fact",
+        source: list[str] | str | None = None,
+        link: dict | None = None,
+    ) -> str:
         self._n += 1
         eid = f"E{self._n}"
-        self.items[eid] = {"id": eid, "kind": kind, "title": title, "type": ev_type, "period": period,
-                           "data": data, "source": source, "link": link}
+        self.items[eid] = {
+            "id": eid,
+            "kind": kind,
+            "title": title,
+            "type": ev_type,
+            "period": period,
+            "data": data,
+            "source": source,
+            "link": link,
+        }
         return eid
 
     def numbers(self) -> set[float]:
@@ -33,12 +54,7 @@ class EvidenceStore:
                 for v in x:
                     walk(v)
             elif isinstance(x, str):
-                import re
-                for m in re.findall(r"(?<![\w.])-?\d+(?:\.\d+)?", x):
-                    try:
-                        out.add(float(m))
-                    except ValueError:
-                        pass
+                out.update(float(m) for m in EMBEDDED_NUMBER_RE.findall(x))
 
         for it in self.items.values():
             walk(it["data"])

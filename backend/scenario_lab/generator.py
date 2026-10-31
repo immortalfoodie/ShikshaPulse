@@ -7,6 +7,7 @@ structural model, then `messify.py` writes it out as deliberately inconsistent f
 
 Everything produced here is SYNTHETIC — NOT GOVERNMENT DATA.
 """
+
 from __future__ import annotations
 
 import json
@@ -25,8 +26,8 @@ SEASONAL = {6: -3, 7: -1, 8: 0, 9: 1, 10: 0, 11: -1, 12: -1, 1: 0, 2: 1, 3: -2}
 FACILITIES = ["electricity", "drinking_water", "functional_toilet", "adequate_classrooms", "library", "ramp"]
 
 # Structural model coefficients (the "truth" analytics should rediscover, never read directly).
-COEF = dict(intercept=8.0, att=0.6, mvac=-30.0, infra=10.0, rural=-2.5, tdl=-0.25)
-LIT_COEF = dict(intercept=14.0, att=0.55, lvac=-15.0, infra=8.0, rural=-2.0, tdl=-0.2)
+COEF = {"intercept": 8.0, "att": 0.6, "mvac": -30.0, "infra": 10.0, "rural": -2.5, "tdl": -0.25}
+LIT_COEF = {"intercept": 14.0, "att": 0.55, "lvac": -15.0, "infra": 8.0, "rural": -2.0, "tdl": -0.2}
 
 ADVERSE = {"vacancy_rise", "attendance_decline", "infra_gap", "unexplained_decline", "insufficient_evidence"}
 SIGNAL_OF_EFFECT = {
@@ -36,17 +37,98 @@ SIGNAL_OF_EFFECT = {
 }
 
 BLOCK_NAME_POOL = [
-    "Amla", "Barwah", "Chandla", "Deori", "Etawa", "Gohad", "Hatta", "Jatara", "Kasrawad", "Lahar",
-    "Mehgaon", "Niwari", "Pawai", "Raghogarh", "Sanwer", "Tendukheda", "Udaipura", "Vijaypur", "Waraseoni",
-    "Zirnia", "Bichhiya", "Chourai", "Dindori", "Garoth", "Harrai", "Jaithari", "Khaknar", "Lanji", "Mohgaon",
-    "Nasrullaganj", "Pansemal", "Rampur", "Sihawal", "Timarni", "Umaria", "Vidisha Rural", "Badi", "Chachaura",
-    "Dhimarkheda", "Gyaraspur", "Kurwai", "Majhauli", "Narsinghgarh", "Patharia", "Rehli", "Shahpura",
+    "Amla",
+    "Barwah",
+    "Chandla",
+    "Deori",
+    "Etawa",
+    "Gohad",
+    "Hatta",
+    "Jatara",
+    "Kasrawad",
+    "Lahar",
+    "Mehgaon",
+    "Niwari",
+    "Pawai",
+    "Raghogarh",
+    "Sanwer",
+    "Tendukheda",
+    "Udaipura",
+    "Vijaypur",
+    "Waraseoni",
+    "Zirnia",
+    "Bichhiya",
+    "Chourai",
+    "Dindori",
+    "Garoth",
+    "Harrai",
+    "Jaithari",
+    "Khaknar",
+    "Lanji",
+    "Mohgaon",
+    "Nasrullaganj",
+    "Pansemal",
+    "Rampur",
+    "Sihawal",
+    "Timarni",
+    "Umaria",
+    "Vidisha Rural",
+    "Badi",
+    "Chachaura",
+    "Dhimarkheda",
+    "Gyaraspur",
+    "Kurwai",
+    "Majhauli",
+    "Narsinghgarh",
+    "Patharia",
+    "Rehli",
+    "Shahpura",
 ]
 DISTRICT_NAME_POOL = ["Antarpur", "Belgarh", "Chandrapura", "Dhaulagiri", "Ekamra", "Gopalganj Rural"]
-VILLAGE_SYLLABLES_A = ["Khar", "Bel", "Sir", "Dhan", "Mal", "Kes", "Pip", "Ram", "Sham", "Gor", "Hir", "Jam",
-                       "Kal", "Lak", "Man", "Nim", "Pal", "Sag", "Tal", "Ud", "Ven", "Bor", "Char", "Dev"]
-VILLAGE_SYLLABLES_B = ["pada", "gaon", "pur", "ora", "wadi", "kheda", "nagar", "tola", "khedi", "ganj",
-                       "garh", "pura", "bari", "dih", "sar", "ner"]
+VILLAGE_SYLLABLES_A = [
+    "Khar",
+    "Bel",
+    "Sir",
+    "Dhan",
+    "Mal",
+    "Kes",
+    "Pip",
+    "Ram",
+    "Sham",
+    "Gor",
+    "Hir",
+    "Jam",
+    "Kal",
+    "Lak",
+    "Man",
+    "Nim",
+    "Pal",
+    "Sag",
+    "Tal",
+    "Ud",
+    "Ven",
+    "Bor",
+    "Char",
+    "Dev",
+]
+VILLAGE_SYLLABLES_B = [
+    "pada",
+    "gaon",
+    "pur",
+    "ora",
+    "wadi",
+    "kheda",
+    "nagar",
+    "tola",
+    "khedi",
+    "ganj",
+    "garh",
+    "pura",
+    "bari",
+    "dih",
+    "sar",
+    "ner",
+]
 SCHOOL_TYPES = [
     ("Government Primary School", 0.45),
     ("Zilla Parishad Primary School", 0.25),
@@ -93,9 +175,16 @@ def load_scenario(name_or_path: str | Path, overrides: dict | None = None) -> Sc
     rng = np.random.default_rng(raw["seed"])
     districts = raw.get("districts") or _randomize(raw["randomize"], rng)
     return Scenario(
-        name=raw["name"], seed=raw["seed"], years=raw["years"], state=raw.get("state", "Fictional State"),
-        schools_per_block=raw.get("schools_per_block", 40), election=raw.get("election", {}),
-        mess=raw.get("mess", {}), districts=districts, description=raw.get("description", ""), raw=raw,
+        name=raw["name"],
+        seed=raw["seed"],
+        years=raw["years"],
+        state=raw.get("state", "Fictional State"),
+        schools_per_block=raw.get("schools_per_block", 40),
+        election=raw.get("election", {}),
+        mess=raw.get("mess", {}),
+        districts=districts,
+        description=raw.get("description", ""),
+        raw=raw,
     )
 
 
@@ -103,8 +192,15 @@ def list_scenarios() -> list[dict]:
     out = []
     for p in sorted(SCENARIO_DIR.glob("*.yaml")):
         raw = yaml.safe_load(p.read_text(encoding="utf-8"))
-        out.append({"name": raw["name"], "description": raw.get("description", "").strip(),
-                    "seed": raw["seed"], "mess": raw.get("mess", {}), "randomized": "randomize" in raw})
+        out.append(
+            {
+                "name": raw["name"],
+                "description": raw.get("description", "").strip(),
+                "seed": raw["seed"],
+                "mess": raw.get("mess", {}),
+                "randomized": "randomize" in raw,
+            }
+        )
     return out
 
 
@@ -146,8 +242,13 @@ def _randomize(spec: dict, rng: np.random.Generator) -> list[dict]:
             if effects and kind in SIGNAL_OF_EFFECT and rng.random() < overlap_prob:
                 other = [k for k in SIGNAL_OF_EFFECT if k != kind]
                 effects.append(_random_effect(other[int(rng.integers(len(other)))], rng))
-            blocks.append({"name": str(names[di * n_b + bi]), "rural_share": round(float(rng.uniform(0.4, 0.9)), 2),
-                           "effects": effects})
+            blocks.append(
+                {
+                    "name": str(names[di * n_b + bi]),
+                    "rural_share": round(float(rng.uniform(0.4, 0.9)), 2),
+                    "effects": effects,
+                }
+            )
         districts.append({"name": str(dnames[di]), "shift": round(float(rng.normal(0, 1.5)), 2), "blocks": blocks})
     return districts
 
@@ -195,18 +296,28 @@ def generate_truth(sc: Scenario) -> dict:
             villages = _village_names(rng, n_villages)
             village_of = list(villages) + list(rng.choice(villages, n - n_villages, replace=True))
             tdl_block = [0.0] * n_years
-            tdl_block[el_year] = float(eff.get("election_disruption", {}).get("teacher_days_lost",
-                                       rng.uniform(tdl_lo, tdl_hi)))
-            block_meta.append({"district": d["name"], "block": bname, "effects": effects,
-                               "teacher_days_lost": tdl_block})
+            tdl_block[el_year] = float(
+                eff.get("election_disruption", {}).get("teacher_days_lost", rng.uniform(tdl_lo, tdl_hi))
+            )
+            block_meta.append(
+                {"district": d["name"], "block": bname, "effects": effects, "teacher_days_lost": tdl_block}
+            )
             if tdl_block[el_year] > 0:
                 start_m = el_months[0]
                 yr0 = int(sc.years[el_year][:4])
                 yr = yr0 if start_m >= 6 else yr0 + 1
-                events.append({"district": d["name"], "block": bname, "event": "Assembly election duty",
-                               "start": f"{yr}-{start_m:02d}-01", "end": f"{yr}-{el_months[-1]:02d}-28",
-                               "teacher_days_lost": round(tdl_block[el_year], 1), "year": sc.years[el_year],
-                               "source": "District Election Office (synthetic)"})
+                events.append(
+                    {
+                        "district": d["name"],
+                        "block": bname,
+                        "event": "Assembly election duty",
+                        "start": f"{yr}-{start_m:02d}-01",
+                        "end": f"{yr}-{el_months[-1]:02d}-28",
+                        "teacher_days_lost": round(tdl_block[el_year], 1),
+                        "year": sc.years[el_year],
+                        "source": "District Election Office (synthetic)",
+                    }
+                )
             used_names: set[str] = set()
             infra_gap_sel = None
             if "infra_gap" in eff:
@@ -225,9 +336,20 @@ def generate_truth(sc: Scenario) -> dict:
                 enrol = int(rng.integers(40, 180) if rural else rng.integers(120, 420))
                 mgmt = "Local Body" if "Zilla" in stype or "Municipal" in stype else "Department of Education"
                 cluster = f"{bname} CRC-{(si // 12) + 1}"
-                schools.append({"udise_code": code, "school_name": sname, "district": d["name"], "block": bname,
-                                "cluster": cluster, "management": mgmt, "rural": rural, "enrolment": enrol,
-                                "village": village, "school_type": stype})
+                schools.append(
+                    {
+                        "udise_code": code,
+                        "school_name": sname,
+                        "district": d["name"],
+                        "block": bname,
+                        "cluster": cluster,
+                        "management": mgmt,
+                        "rural": rural,
+                        "enrolment": enrol,
+                        "village": village,
+                        "school_type": stype,
+                    }
+                )
                 # Latent, persistent school characteristics.
                 u_s = float(rng.normal(0, 4.0))
                 u_l = float(rng.normal(0, 4.0))
@@ -246,7 +368,7 @@ def generate_truth(sc: Scenario) -> dict:
                 for t, year in enumerate(sc.years):
                     # --- Factors ---
                     att_shift = 0.0
-                    month_weights = {m: 1.0 for m in MONTHS}
+                    month_weights = dict.fromkeys(MONTHS, 1.0)
                     mvac_rate, lvac_rate = base_mvac, base_lvac
                     extra = 0.0
                     if "attendance_decline" in eff:
@@ -292,19 +414,47 @@ def generate_truth(sc: Scenario) -> dict:
                         att_vals.append(a)
                         tatt_vals.append(ta)
                         cal_year = int(year[:4]) + (1 if m < 6 else 0)
-                        monthly.append({"udise_code": code, "academic_year": year, "year": cal_year, "month": m,
-                                        "student_att_pct": round(a, 1), "teacher_att_pct": round(ta, 1),
-                                        "days_open": int(rng.integers(20, 25))})
+                        monthly.append(
+                            {
+                                "udise_code": code,
+                                "academic_year": year,
+                                "year": cal_year,
+                                "month": m,
+                                "student_att_pct": round(a, 1),
+                                "teacher_att_pct": round(ta, 1),
+                                "days_open": int(rng.integers(20, 25)),
+                            }
+                        )
                     att = float(np.mean(att_vals))
                     mvac = m_vacant / m_posts
                     lvac = l_vacant / l_posts
                     # --- Outcomes ---
-                    num = (COEF["intercept"] + d_shift + b_shift + COEF["att"] * att + COEF["mvac"] * mvac
-                           + COEF["infra"] * infra + COEF["rural"] * rural + COEF["tdl"] * tdl + u_s + extra
-                           + rng.normal(0, 2.5))
-                    lit = (LIT_COEF["intercept"] + d_shift + b_shift + LIT_COEF["att"] * att + LIT_COEF["lvac"] * lvac
-                           + LIT_COEF["infra"] * infra + LIT_COEF["rural"] * rural + LIT_COEF["tdl"] * tdl + u_l
-                           + 0.5 * extra + rng.normal(0, 2.5))
+                    num = (
+                        COEF["intercept"]
+                        + d_shift
+                        + b_shift
+                        + COEF["att"] * att
+                        + COEF["mvac"] * mvac
+                        + COEF["infra"] * infra
+                        + COEF["rural"] * rural
+                        + COEF["tdl"] * tdl
+                        + u_s
+                        + extra
+                        + rng.normal(0, 2.5)
+                    )
+                    lit = (
+                        LIT_COEF["intercept"]
+                        + d_shift
+                        + b_shift
+                        + LIT_COEF["att"] * att
+                        + LIT_COEF["lvac"] * lvac
+                        + LIT_COEF["infra"] * infra
+                        + LIT_COEF["rural"] * rural
+                        + LIT_COEF["tdl"] * tdl
+                        + u_l
+                        + 0.5 * extra
+                        + rng.normal(0, 2.5)
+                    )
                     num, lit = float(np.clip(num, 5, 98)), float(np.clip(lit, 5, 98))
                     enrol3 = max(8, int(enrol / 8 * rng.uniform(0.9, 1.1)))
                     coverage = float(rng.uniform(0.85, 0.97))
@@ -315,23 +465,49 @@ def generate_truth(sc: Scenario) -> dict:
                         coverage = float(e.get("coverage", 0.45)) * rng.uniform(0.9, 1.1)
                         num -= 6.0  # different instrument: scores are not comparable with earlier years
                         lit -= 4.0
-                    panel.append({
-                        "udise_code": code, "academic_year": year, "district": d["name"], "block": bname,
-                        "numeracy": round(num, 1), "literacy": round(lit, 1), "student_att": round(att, 2),
-                        "teacher_att": round(float(np.mean(tatt_vals)), 2), "maths_sanctioned": m_posts,
-                        "maths_vacant": m_vacant, "lang_sanctioned": l_posts, "lang_vacant": l_vacant,
-                        "infra_index": round(infra, 3), **{f: int(v) for f, v in zip(FACILITIES, fac)},
-                        "teacher_days_lost": round(tdl, 1), "rural": rural, "enrolment": enrol,
-                        "grade3_enrolment": enrol3, "students_assessed": max(3, int(enrol3 * coverage)),
-                        "coverage_pct": round(min(coverage, 1.0) * 100, 1), "assessment_type": a_type,
-                        "max_marks": max_marks, "methodology_version": method_v,
-                    })
+                    panel.append(
+                        {
+                            "udise_code": code,
+                            "academic_year": year,
+                            "district": d["name"],
+                            "block": bname,
+                            "numeracy": round(num, 1),
+                            "literacy": round(lit, 1),
+                            "student_att": round(att, 2),
+                            "teacher_att": round(float(np.mean(tatt_vals)), 2),
+                            "maths_sanctioned": m_posts,
+                            "maths_vacant": m_vacant,
+                            "lang_sanctioned": l_posts,
+                            "lang_vacant": l_vacant,
+                            "infra_index": round(infra, 3),
+                            **{f: int(v) for f, v in zip(FACILITIES, fac, strict=True)},
+                            "teacher_days_lost": round(tdl, 1),
+                            "rural": rural,
+                            "enrolment": enrol,
+                            "grade3_enrolment": enrol3,
+                            "students_assessed": max(3, int(enrol3 * coverage)),
+                            "coverage_pct": round(min(coverage, 1.0) * 100, 1),
+                            "assessment_type": a_type,
+                            "max_marks": max_marks,
+                            "methodology_version": method_v,
+                        }
+                    )
 
     # State-wide calendar context (no teacher days lost, shown on the context timeline).
     for year in sc.years:
         y1 = int(year[:4]) + 1
-        events.append({"district": "ALL", "block": "ALL", "event": "Annual examinations", "start": f"{y1}-03-01",
-                       "end": f"{y1}-03-25", "teacher_days_lost": 0, "year": year, "source": "State calendar (synthetic)"})
+        events.append(
+            {
+                "district": "ALL",
+                "block": "ALL",
+                "event": "Annual examinations",
+                "start": f"{y1}-03-01",
+                "end": f"{y1}-03-25",
+                "teacher_days_lost": 0,
+                "year": year,
+                "source": "State calendar (synthetic)",
+            }
+        )
     return {
         "schools": pd.DataFrame(schools),
         "panel": pd.DataFrame(panel),
@@ -368,14 +544,23 @@ def build_expected(sc: Scenario, truth: dict) -> dict:
             start = next(e for e in bm["effects"] if e["type"] == "methodology_change").get("start", 2)
             non_comparable.append({"block": bm["block"], "from": sc.years[start - 1], "to": sc.years[start]})
         blocks[bm["block"]] = {
-            "district": bm["district"], "effects": types, "expected_signals": signals,
-            "overlap": len(adverse) >= 2, "status": status,
+            "district": bm["district"],
+            "effects": types,
+            "expected_signals": signals,
+            "overlap": len(adverse) >= 2,
+            "status": status,
             "teacher_days_lost": [round(x, 1) for x in bm["teacher_days_lost"]],
         }
     return {
-        "scenario": sc.name, "seed": sc.seed, "years": sc.years, "baseline_year": sc.baseline_year,
-        "latest_year": sc.latest_year, "n_schools": int(len(truth["schools"])), "blocks": blocks,
-        "election_affected_blocks": election_blocks, "non_comparable": non_comparable,
+        "scenario": sc.name,
+        "seed": sc.seed,
+        "years": sc.years,
+        "baseline_year": sc.baseline_year,
+        "latest_year": sc.latest_year,
+        "n_schools": len(truth["schools"]),
+        "blocks": blocks,
+        "election_affected_blocks": election_blocks,
+        "non_comparable": non_comparable,
         "always_allowed_signals": ["teacher_attendance"],
         "note": "SYNTHETIC — NOT GOVERNMENT DATA. Ground truth for evaluation only.",
     }
@@ -401,7 +586,13 @@ def generate(name_or_path: str | Path, out_root: Path, overrides: dict | None = 
     truth_dir = out_dir / "truth"
     truth_dir.mkdir(exist_ok=True)
     truth["panel"].to_csv(truth_dir / "panel_truth.csv", index=False)
-    return {"scenario": sc.name, "seed": sc.seed, "out_dir": str(out_dir), "raw_dir": str(raw_dir),
-            "files": files, "n_schools": expected["n_schools"], "n_blocks": len(expected["blocks"]),
-            "name_variants": len(matches)}
-
+    return {
+        "scenario": sc.name,
+        "seed": sc.seed,
+        "out_dir": str(out_dir),
+        "raw_dir": str(raw_dir),
+        "files": files,
+        "n_schools": expected["n_schools"],
+        "n_blocks": len(expected["blocks"]),
+        "name_variants": len(matches),
+    }

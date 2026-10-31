@@ -1,4 +1,5 @@
 """ShikshaPulse API server.  Run from backend/:  uvicorn app.main:app --port 8000"""
+
 from __future__ import annotations
 
 import sys
@@ -25,8 +26,12 @@ async def lifespan(_: FastAPI):
     yield
 
 
-app = FastAPI(title="ShikshaPulse", version="1.0", lifespan=lifespan,
-              description="District education diagnostic & accountable-action platform")
+app = FastAPI(
+    title="ShikshaPulse",
+    version="1.0",
+    lifespan=lifespan,
+    description="District education diagnostic & accountable-action platform",
+)
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
 app.include_router(router)
 

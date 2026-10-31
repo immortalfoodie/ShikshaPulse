@@ -1,6 +1,8 @@
 """Shared fixture: a small randomised scenario ingested into an isolated test warehouse."""
+
 from __future__ import annotations
 
+import json
 import os
 import sys
 from pathlib import Path
@@ -26,6 +28,5 @@ def warehouse(tmp_path_factory):
     db.reset_engine()
     db.engine()
     run_ingest(SyntheticFileAdapter(raw_dir=Path(res["raw_dir"])).fetch(), use_ai=False)
-    import json
     expected = json.loads((Path(res["out_dir"]) / "expected.json").read_text(encoding="utf-8"))
     return {"expected": expected, "raw_dir": Path(res["raw_dir"])}

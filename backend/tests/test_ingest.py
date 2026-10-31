@@ -1,4 +1,5 @@
 """Mapping, normalisation, matching and pipeline tests."""
+
 import pandas as pd
 
 from app.ingest.mapper import detect_kind, map_columns, mapping_dict
@@ -57,6 +58,7 @@ def test_messy_headers_resolved(warehouse):
 
 def test_matcher_precision_on_planted_variants(warehouse):
     from app import db
+
     reg = SchoolRegistry(db.read_df("SELECT * FROM schools"))
     auto = wrong = 0
     for mt in warehouse["expected"]["matches"]:
@@ -70,6 +72,7 @@ def test_matcher_precision_on_planted_variants(warehouse):
 
 def test_panel_built_with_three_years(warehouse):
     from app.analytics.common import panel, years
+
     assert len(years()) == 3
     p = panel()
     assert p.udise_code.nunique() == warehouse["expected"]["n_schools"]
@@ -79,10 +82,12 @@ def test_panel_built_with_three_years(warehouse):
 def test_review_queue_and_resolution(warehouse):
     from app import db
     from app.ingest.pipeline import resolve_review
+
     rows = db.query("SELECT * FROM match_review WHERE status='pending'")
     if not rows:
         return
     import json
+
     r = rows[0]
     cands = json.loads(r["candidates"])
     res = resolve_review(r["id"], cands[0]["udise_code"] if cands else None, "pytest")

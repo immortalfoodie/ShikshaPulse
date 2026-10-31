@@ -12,6 +12,7 @@
 The badge shown is "Numbers verified against source calculations" — it certifies the numbers
 and citations, not that every interpretation is proven.
 """
+
 from __future__ import annotations
 
 import re
@@ -19,26 +20,46 @@ import re
 from .evidence import EvidenceStore
 
 LABELS = {"observed_fact", "associated_signal", "unresolved_question"}
+SURFACEABLE_KINDS = {"unresolved", "signal", "quality_warning", "comparability"}
 
 CAUSAL_EN = [
-    (r"\bwas caused by\b", "coincided with"), (r"\bis caused by\b", "is associated with"),
-    (r"\bcaused by\b", "associated with"), (r"\bcaused\b", "coincided with"), (r"\bcauses\b", "is associated with"),
-    (r"\bdue to\b", "alongside"), (r"\bbecause of\b", "alongside"), (r"\bowing to\b", "alongside"),
-    (r"\bled to\b", "coincided with"), (r"\bleads to\b", "is associated with"),
-    (r"\bresulted in\b", "coincided with"), (r"\bresulting in\b", "alongside"), (r"\bas a result of\b", "alongside"),
-    (r"\bis responsible for\b", "is associated with"), (r"\bwas responsible for\b", "was associated with"),
-    (r"\bdrove\b", "coincided with"), (r"\bdriven by\b", "associated with"), (r"\bthe reason (?:is|was)\b",
-                                                                               "a possible contributing signal is"),
+    (r"\bwas caused by\b", "coincided with"),
+    (r"\bis caused by\b", "is associated with"),
+    (r"\bcaused by\b", "associated with"),
+    (r"\bcaused\b", "coincided with"),
+    (r"\bcauses\b", "is associated with"),
+    (r"\bdue to\b", "alongside"),
+    (r"\bbecause of\b", "alongside"),
+    (r"\bowing to\b", "alongside"),
+    (r"\bled to\b", "coincided with"),
+    (r"\bleads to\b", "is associated with"),
+    (r"\bresulted in\b", "coincided with"),
+    (r"\bresulting in\b", "alongside"),
+    (r"\bas a result of\b", "alongside"),
+    (r"\bis responsible for\b", "is associated with"),
+    (r"\bwas responsible for\b", "was associated with"),
+    (r"\bdrove\b", "coincided with"),
+    (r"\bdriven by\b", "associated with"),
+    (r"\bthe reason (?:is|was)\b", "a possible contributing signal is"),
     (r"\bexplains why\b", "is associated with the fact that"),
 ]
 CAUSAL_HI = [
-    (r"के कारण", "के साथ-साथ"), (r"की वजह से", "के साथ-साथ"), (r"कारण बना", "से जुड़ा रहा"),
-    (r"कारण है", "से जुड़ा संकेत है"), (r"कारण था", "से जुड़ा संकेत था"), (r"जिम्मेदार है", "से जुड़ा है"),
-    (r"जिम्मेदार था", "से जुड़ा था"), (r"की वजह", "से जुड़ा"),
-    (r"कारणामुळे", "सोबतच"), (r"मुळे", "सोबत"),            # Marathi
-    (r"কারণে", "সঙ্গে"), (r"এর ফলে", "এর সঙ্গে"),         # Bengali
-    (r"காரணமாக", "உடன்"), (r"ஏற்படுத்தியது", "உடன் நிகழ்ந்தது"),  # Tamil
-    (r"కారణంగా", "తో పాటు"), (r"వల్ల", "తో పాటు"),          # Telugu
+    (r"के कारण", "के साथ-साथ"),
+    (r"की वजह से", "के साथ-साथ"),
+    (r"कारण बना", "से जुड़ा रहा"),
+    (r"कारण है", "से जुड़ा संकेत है"),
+    (r"कारण था", "से जुड़ा संकेत था"),
+    (r"जिम्मेदार है", "से जुड़ा है"),
+    (r"जिम्मेदार था", "से जुड़ा था"),
+    (r"की वजह", "से जुड़ा"),
+    (r"कारणामुळे", "सोबतच"),
+    (r"मुळे", "सोबत"),  # Marathi
+    (r"কারণে", "সঙ্গে"),
+    (r"এর ফলে", "এর সঙ্গে"),  # Bengali
+    (r"காரணமாக", "உடன்"),
+    (r"ஏற்படுத்தியது", "உடன் நிகழ்ந்தது"),  # Tamil
+    (r"కారణంగా", "తో పాటు"),
+    (r"వల్ల", "తో పాటు"),  # Telugu
 ]
 # A number: not glued to a preceding word/decimal/denominator, never split mid-decimal, and allowed to be
 # followed by "/" (e.g. "66.7/100") or by Indic script suffixes (e.g. Bengali "45টি").
@@ -51,7 +72,7 @@ def _numbers_in(text: str) -> list[tuple[str, float]]:
     masked = YEAR_RE.sub(lambda m: " " * len(m.group(0)), text)
     out = []
     for m in NUM_RE.finditer(masked):
-        if SKIP_BEFORE.search(masked[max(0, m.start() - 12):m.start()]):
+        if SKIP_BEFORE.search(masked[max(0, m.start() - 12) : m.start()]):
             continue
         raw = m.group(0).replace("−", "-").replace(",", "")  # thousands separators (1,168 / 1,16,800)
         try:
@@ -75,6 +96,7 @@ def _matches(x: float, allowed: set[float], text_token: str) -> bool:
 
 
 def soften(text: str) -> tuple[str, int]:
+    """Replace causal claims with associative phrasing; return `(updated_text, replacement_count)`."""
     n = 0
     for pat, rep in CAUSAL_EN + CAUSAL_HI:
         text, k = re.subn(pat, rep, text, flags=re.I)
@@ -82,29 +104,27 @@ def soften(text: str) -> tuple[str, int]:
     return text, n
 
 
-def check(answer: dict, store: EvidenceStore, question: str = "") -> dict:
-    """Validate and repair an answer in place. Returns the guard report."""
-    allowed = store.numbers() | {float(n) for _, n in _numbers_in(question)}
-    report = {"numbers_checked": 0, "numbers_verified": 0, "unverified_numbers": [], "citation_errors": [],
-              "relabelled": 0, "causal_softened": 0, "periods_filled": 0, "unresolved_added": 0, "notes": []}
-    findings = answer.get("findings") or []
+def _verify_numbers(answer: dict, findings: list[dict], allowed: set[float], report: dict) -> None:
     texts = [("summary", answer.get("summary", ""))]
     texts += [(f"finding {i + 1}", f.get("text", "")) for i, f in enumerate(findings)]
     texts += [(f"next step {i + 1}", s) for i, s in enumerate(answer.get("next_steps") or [])]
-    for where, t in texts:
-        for tok, x in _numbers_in(t or ""):
+    for where, text in texts:
+        for tok, x in _numbers_in(text or ""):
             report["numbers_checked"] += 1
             if _matches(x, allowed, tok):
                 report["numbers_verified"] += 1
             else:
                 report["unverified_numbers"].append({"value": tok, "where": where})
 
+
+def _verify_citations_and_labels(findings: list[dict], store: EvidenceStore, report: dict) -> None:
     for i, f in enumerate(findings):
         if f.get("label") not in LABELS:
             f["label"] = "associated_signal"
             report["relabelled"] += 1
-        ev = [e for e in (f.get("evidence") or []) if e in store.items]
-        bad = [e for e in (f.get("evidence") or []) if e not in store.items]
+        raw_ev = f.get("evidence") or []
+        ev = [e for e in raw_ev if e in store.items]
+        bad = [e for e in raw_ev if e not in store.items]
         if bad:
             report["citation_errors"].append({"finding": i + 1, "error": f"unknown evidence id(s) {bad}"})
         if not ev:
@@ -123,7 +143,8 @@ def check(answer: dict, store: EvidenceStore, question: str = "") -> dict:
                 f["period"] = periods[0]
                 report["periods_filled"] += 1
 
-    # Causal language is softened everywhere.
+
+def _soften_answer(answer: dict, findings: list[dict], report: dict) -> None:
     if answer.get("summary"):
         answer["summary"], n = soften(answer["summary"])
         report["causal_softened"] += n
@@ -132,17 +153,49 @@ def check(answer: dict, store: EvidenceStore, question: str = "") -> dict:
         report["causal_softened"] += n
     answer["next_steps"] = [soften(s)[0] for s in answer.get("next_steps") or []]
 
-    # Unresolved evidence must be surfaced.
-    unresolved = store.of_type("unresolved_question")
+
+def _surface_unresolved(findings: list[dict], store: EvidenceStore, report: dict) -> None:
     cited = {e for f in findings for e in f.get("evidence", [])}
-    for u in unresolved:
-        if u["id"] not in cited and u["kind"] in ("unresolved", "signal", "quality_warning", "comparability"):
-            text = u["data"].get("text") or "; ".join(u["data"].get("warnings", []) or u["data"].get("caveats", [])) \
+    for u in store.of_type("unresolved_question"):
+        if u["id"] not in cited and u["kind"] in SURFACEABLE_KINDS:
+            text = (
+                u["data"].get("text")
+                or "; ".join(u["data"].get("warnings", []) or u["data"].get("caveats", []))
                 or u["title"]
-            findings.append({"label": "unresolved_question", "text": text, "evidence": [u["id"]],
-                             "period": u.get("period"), "added_by_guard": True})
+            )
+            findings.append(
+                {
+                    "label": "unresolved_question",
+                    "text": text,
+                    "evidence": [u["id"]],
+                    "period": u.get("period"),
+                    "added_by_guard": True,
+                }
+            )
             report["unresolved_added"] += 1
+
+
+def check(answer: dict, store: EvidenceStore, question: str = "") -> dict:
+    """Validate and repair an answer in place. Returns the guard report."""
+    allowed = store.numbers() | {float(n) for _, n in _numbers_in(question)}
+    report = {
+        "numbers_checked": 0,
+        "numbers_verified": 0,
+        "unverified_numbers": [],
+        "citation_errors": [],
+        "relabelled": 0,
+        "causal_softened": 0,
+        "periods_filled": 0,
+        "unresolved_added": 0,
+        "notes": [],
+    }
+    findings = answer.get("findings") or []
+    _verify_numbers(answer, findings, allowed, report)
+    _verify_citations_and_labels(findings, store, report)
+    _soften_answer(answer, findings, report)
+    _surface_unresolved(findings, store, report)
     answer["findings"] = findings
+
     if report["unresolved_added"]:
         report["notes"].append(f"Guard added {report['unresolved_added']} unresolved question(s) the answer omitted.")
     if report["causal_softened"]:
@@ -150,6 +203,9 @@ def check(answer: dict, store: EvidenceStore, question: str = "") -> dict:
     if report["relabelled"]:
         report["notes"].append(f"{report['relabelled']} finding label(s) corrected to match their evidence.")
     report["passed"] = not report["unverified_numbers"] and not report["citation_errors"]
-    report["badge"] = (f"Numbers verified against source calculations ({report['numbers_verified']}/"
-                       f"{report['numbers_checked']})" if report["passed"] else "Verification failed")
+    report["badge"] = (
+        f"Numbers verified against source calculations ({report['numbers_verified']}/{report['numbers_checked']})"
+        if report["passed"]
+        else "Verification failed"
+    )
     return report

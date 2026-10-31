@@ -1,11 +1,12 @@
 """HTTP API. Every data endpoint is authenticated and scoped; state-changing calls are audit-logged."""
+
 from __future__ import annotations
 
 import json
 import uuid
 from pathlib import Path
 
-from fastapi import APIRouter, Body, Depends, File, Form, HTTPException, Query, UploadFile
+from fastapi import APIRouter, Body, Depends, File, Form, HTTPException, UploadFile
 from fastapi.responses import Response
 
 from .. import db, runtime
@@ -13,9 +14,17 @@ from ..actions import service as actions
 from ..ai import assistant, brief, drafter
 from ..ai.llm import llm
 from ..analytics import common, context, diagnose, expected, peers, quality, radar, trends
-from ..auth import (PERSONAS, audit, can_list_schools, clamp_school_scope, current_user, issue_token, persona,
-                    require_view)
-from ..config import SCENARIO_OUT, public_demo, settings
+from ..auth import (
+    PERSONAS,
+    audit,
+    can_list_schools,
+    clamp_school_scope,
+    current_user,
+    issue_token,
+    persona,
+    require_view,
+)
+from ..config import SCENARIO_OUT, public_demo, settings, today
 from ..ingest import pipeline
 from ..sources import describe_all, get_adapter
 from ..sources.readers import read_table
@@ -59,10 +68,20 @@ def meta(user=Depends(current_user)):
         for (d, b), _ in p.groupby(["district", "block"]):
             tree.setdefault(d, []).append(b)
     tiers = sorted(p.provenance.dropna().unique().tolist()) if not p.empty and "provenance" in p else []
-    return {"user": user, "ready": not p.empty, "years": common.years(), "tree": tree, "mode": settings()["mode"],
-            "provenance_tiers": tiers, "synthetic": "synthetic_demo" in tiers, "scenario": runtime.active_scenario(),
-            "public_demo": public_demo(), "llm": llm().status(), "schools": int(p.udise_code.nunique()) if not p.empty else 0,
-            "today": __import__("app.config", fromlist=["today"]).today().isoformat()}
+    return {
+        "user": user,
+        "ready": not p.empty,
+        "years": common.years(),
+        "tree": tree,
+        "mode": settings()["mode"],
+        "provenance_tiers": tiers,
+        "synthetic": "synthetic_demo" in tiers,
+        "scenario": runtime.active_scenario(),
+        "public_demo": public_demo(),
+        "llm": llm().status(),
+        "schools": int(p.udise_code.nunique()) if not p.empty else 0,
+        "today": today().isoformat(),
+    }
 
 
 # ---------------------------------------------------------------- analytics
@@ -85,8 +104,7 @@ def trend(metric: str = "numeracy", unit_type: str = "state", unit: str | None =
 
 
 @router.get("/breakdown")
-def breakdown(metric: str = "numeracy", unit_type: str = "state", unit: str | None = None,
-              user=Depends(current_user)):
+def breakdown(metric: str = "numeracy", unit_type: str = "state", unit: str | None = None, user=Depends(current_user)):
     _ready()
     ut, u = _unit(unit_type, unit)
     require_view(user, ut, u)
@@ -97,8 +115,9 @@ def breakdown(metric: str = "numeracy", unit_type: str = "state", unit: str | No
 
 
 @router.get("/children-reasons")
-def children_reasons(unit_type: str = "state", unit: str | None = None, metric: str = "numeracy",
-                     user=Depends(current_user)):
+def children_reasons(
+    unit_type: str = "state", unit: str | None = None, metric: str = "numeracy", user=Depends(current_user)
+):
     _ready()
     ut, u = _unit(unit_type, unit)
     require_view(user, ut, u)
@@ -106,8 +125,9 @@ def children_reasons(unit_type: str = "state", unit: str | None = None, metric: 
 
 
 @router.get("/diagnose")
-def diagnose_ep(unit_type: str = "state", unit: str | None = None, metric: str = "numeracy",
-                user=Depends(current_user)):
+def diagnose_ep(
+    unit_type: str = "state", unit: str | None = None, metric: str = "numeracy", user=Depends(current_user)
+):
     _ready()
     ut, u = _unit(unit_type, unit)
     require_view(user, ut, u)
@@ -144,8 +164,9 @@ def expected_ranking(district: str | None = None, user=Depends(current_user)):
 
 
 @router.get("/peers")
-def peers_ep(block: str, election_only: bool = False, k: int = 5, other_districts: bool = True,
-             user=Depends(current_user)):
+def peers_ep(
+    block: str, election_only: bool = False, k: int = 5, other_districts: bool = True, user=Depends(current_user)
+):
     _ready()
     return peers.peers(block, k=k, election_only=election_only, other_districts=other_districts)
 
@@ -183,18 +204,29 @@ def my_school(udise: str | None = None, user=Depends(current_user)):
     r = radar.radar("block", prof["block"], min_flags=1, limit=100000)
     me = next((x for x in r["schools"] if x["udise_code"] == code), None)
     blk = trends.overview("block", prof["block"])
-    acts = [a for a in actions.for_user(user, actions.list_actions(user, "block", prof["block"]))
-            if (a["owner_id"] == user["id"] and code == user.get("scope")) or code in [s if isinstance(s, str) else s.get("udise_code") for s in a["schools"]]
-            or a["unit"] == code]
-    return {"school": prof, "flags": me["flags"] if me else [], "missing": me["missing"] if me else [],
-            "block_kpis": {k["metric"]: k["latest"] for k in blk["kpis"]}, "actions": acts,
-            "latest_year": blk["latest_year"], "baseline_year": blk["baseline_year"]}
+    acts = [
+        a
+        for a in actions.for_user(user, actions.list_actions(user, "block", prof["block"]))
+        if (a["owner_id"] == user["id"] and code == user.get("scope"))
+        or code in [s if isinstance(s, str) else s.get("udise_code") for s in a["schools"]]
+        or a["unit"] == code
+    ]
+    return {
+        "school": prof,
+        "flags": me["flags"] if me else [],
+        "missing": me["missing"] if me else [],
+        "block_kpis": {k["metric"]: k["latest"] for k in blk["kpis"]},
+        "actions": acts,
+        "latest_year": blk["latest_year"],
+        "baseline_year": blk["baseline_year"],
+    }
 
 
 @router.get("/early-warning")
 def early_warning_ep(unit_type: str = "state", unit: str | None = None, user=Depends(current_user)):
     _ready()
     from ..analytics.early_warning import early_warning
+
     ut, u = _unit(unit_type, unit)
     require_view(user, ut, u)
     w = early_warning(ut, u)
@@ -207,6 +239,7 @@ def early_warning_ep(unit_type: str = "state", unit: str | None = None, user=Dep
 def redistribution_ep(unit_type: str = "block", unit: str | None = None, user=Depends(current_user)):
     _ready()
     from ..analytics.redistribution import suggestions
+
     ut, u = clamp_school_scope(user, *_unit(unit_type, unit))
     return suggestions(ut, u)
 
@@ -227,15 +260,21 @@ def schools_list(unit_type: str = "block", unit: str | None = None, user=Depends
 @router.get("/visits/checklist")
 def visit_checklist(user=Depends(current_user)):
     from .. import visits
+
     return {"items": visits.CHECKLIST, "values": list(visits.VALUES)}
 
 
 @router.get("/visits")
 def visits_list(unit_type: str = "block", unit: str | None = None, user=Depends(current_user)):
     from .. import visits
+
     ut, u = clamp_school_scope(user, *_unit(unit_type, unit))
-    rows = visits.list_visits(block=u if ut == "block" else None, district=u if ut == "district" else None,
-                              udise=u if ut == "school" else None, limit=200)
+    rows = visits.list_visits(
+        block=u if ut == "block" else None,
+        district=u if ut == "district" else None,
+        udise=u if ut == "school" else None,
+        limit=200,
+    )
     return {"visits": rows, "summary": visits.summary(ut, u)}
 
 
@@ -243,6 +282,7 @@ def visits_list(unit_type: str = "block", unit: str | None = None, user=Depends(
 def visits_create(payload: dict = Body(...), user=Depends(current_user)):
     """Accepts one visit or {"visits": [...]} (offline batch sync). Idempotent on client_id."""
     from .. import visits
+
     items = payload.get("visits") if "visits" in payload else [payload]
     out = []
     for v in items:
@@ -298,7 +338,11 @@ def sources(user=Depends(current_user)):
 
 @router.get("/ingest/raw")
 def raw_preview(adapter: str, file: str, rows: int = 12, user=Depends(current_user)):
-    ad = get_adapter(adapter, scenario=runtime.active_scenario()) if adapter == "synthetic_files" else get_adapter(adapter)
+    ad = (
+        get_adapter(adapter, scenario=runtime.active_scenario())
+        if adapter == "synthetic_files"
+        else get_adapter(adapter)
+    )
     match = [p for p in ad.files() if p.name == file]
     if not match:
         raise HTTPException(404, "file not found")
@@ -326,8 +370,11 @@ def clear_upload(user=Depends(current_user)):
 
 
 @router.post("/ingest/preview")
-def ingest_preview(adapter: str = Body("synthetic_files", embed=True), use_ai: bool = Body(True, embed=True),
-                   user=Depends(current_user)):
+def ingest_preview(
+    adapter: str = Body("synthetic_files", embed=True),
+    use_ai: bool = Body(True, embed=True),
+    user=Depends(current_user),
+):
     ds = runtime.datasets_for(adapter)
     if not ds:
         raise HTTPException(400, "No files found for this source")
@@ -338,14 +385,21 @@ def ingest_preview(adapter: str = Body("synthetic_files", embed=True), use_ai: b
 
 
 @router.post("/ingest/run")
-def ingest_run(adapter: str = Body("synthetic_files", embed=True), preview_id: str | None = Body(None, embed=True),
-               overrides: dict | None = Body(None, embed=True), use_ai: bool = Body(True, embed=True),
-               user=Depends(current_user)):
+def ingest_run(
+    adapter: str = Body("synthetic_files", embed=True),
+    preview_id: str | None = Body(None, embed=True),
+    overrides: dict | None = Body(None, embed=True),
+    use_ai: bool = Body(True, embed=True),
+    user=Depends(current_user),
+):
     if user["role"] not in ("district", "state"):
         raise HTTPException(403, "Only district/state officers can rebuild the warehouse")
     if public_demo() and adapter != "synthetic_files":
-        raise HTTPException(403, "On the public demo the record is rebuilt only from the demo files. "
-                                 "Uploaded files can be read and previewed; run locally to build from them.")
+        raise HTTPException(
+            403,
+            "On the public demo the record is rebuilt only from the demo files. "
+            "Uploaded files can be read and previewed; run locally to build from them.",
+        )
     jid = runtime.start_job(adapter, overrides, preview_id, use_ai, user)
     return {"job_id": jid}
 
@@ -364,9 +418,11 @@ def ingest_summary(user=Depends(current_user)):
 
 @router.get("/ingest/review")
 def review_list(status: str = "pending", user=Depends(current_user)):
-    rows = db.query("SELECT id, source_file, kind, academic_year, district, block, name_variant, candidates, n_rows,"
-                    " status, resolved_udise, resolved_by FROM match_review WHERE status=:s ORDER BY block, name_variant",
-                    {"s": status})
+    rows = db.query(
+        "SELECT id, source_file, kind, academic_year, district, block, name_variant, candidates, n_rows,"
+        " status, resolved_udise, resolved_by FROM match_review WHERE status=:s ORDER BY block, name_variant",
+        {"s": status},
+    )
     rows = [r for r in rows if _review_in_scope(user, r)]
     for r in rows:
         r["candidates"] = json.loads(r["candidates"] or "[]")
@@ -415,16 +471,27 @@ def review_bulk(min_score: float = Body(90, embed=True), user=Depends(current_us
 def lineage(udise: str, user=Depends(current_user)):
     require_view(user, "school", udise)
     out = {}
-    tables = {"assessments": "academic_year, subject, score_raw, scoring_scale, score_pct, assessment_type",
-              "attendance_monthly": "academic_year, year, month, student_att_pct, teacher_att_pct",
-              "teacher_snapshot": "academic_year, snapshot_date, subject, sanctioned, working, vacant",
-              "udise_year": "academic_year, enrolment, infra_index"}
+    tables = {
+        "assessments": "academic_year, subject, score_raw, scoring_scale, score_pct, assessment_type",
+        "attendance_monthly": "academic_year, year, month, student_att_pct, teacher_att_pct",
+        "teacher_snapshot": "academic_year, snapshot_date, subject, sanctioned, working, vacant",
+        "udise_year": "academic_year, enrolment, infra_index",
+    }
     for t, cols in tables.items():
         if db.table_exists(t):
-            out[t] = db.query(f"SELECT {cols}, _source_file, _source_row, _match_method, _match_conf, _provenance "
-                              f"FROM {t} WHERE udise_code=:c ORDER BY academic_year LIMIT 60", {"c": udise})
-    files = {f["file"]: {"transforms": f["transforms"], "mapping_version": f["mapping_version"],
-                         "schema_version": f["schema_version"]} for f in quality.file_report()}
+            out[t] = db.query(
+                f"SELECT {cols}, _source_file, _source_row, _match_method, _match_conf, _provenance "
+                f"FROM {t} WHERE udise_code=:c ORDER BY academic_year LIMIT 60",
+                {"c": udise},
+            )
+    files = {
+        f["file"]: {
+            "transforms": f["transforms"],
+            "mapping_version": f["mapping_version"],
+            "schema_version": f["schema_version"],
+        }
+        for f in quality.file_report()
+    }
     return {"udise_code": udise, "records": out, "files": files}
 
 
@@ -440,11 +507,11 @@ def owners(unit_type: str = "district", unit: str | None = None, user=Depends(cu
 
 
 @router.get("/actions")
-def list_actions(unit_type: str | None = None, unit: str | None = None, mine: bool = False,
-                 user=Depends(current_user)):
+def list_actions(unit_type: str | None = None, unit: str | None = None, mine: bool = False, user=Depends(current_user)):
     if unit_type is None and user["role"] != "state":
-        unit_type, unit = (user["scope_type"], user["scope"]) if user["scope_type"] != "school" else (
-            "block", user.get("block"))
+        unit_type, unit = (
+            (user["scope_type"], user["scope"]) if user["scope_type"] != "school" else ("block", user.get("block"))
+        )
     acts = actions.for_user(user, actions.list_actions(user, unit_type if unit_type != "state" else None, unit, mine))
     return {"actions": acts, "summary": actions.summary(acts)}
 
@@ -480,15 +547,24 @@ def create_action(payload: dict = Body(...), user=Depends(current_user)):
 
 
 @router.post("/actions/draft")
-def draft(unit_type: str = Body(..., embed=True), unit: str = Body(..., embed=True),
-          schools: list[str] | None = Body(None, embed=True), user=Depends(current_user)):
+def draft(
+    unit_type: str = Body(..., embed=True),
+    unit: str = Body(..., embed=True),
+    schools: list[str] | None = Body(None, embed=True),
+    user=Depends(current_user),
+):
     _ready()
     return drafter.draft_actions(unit_type, unit, schools)
 
 
 @router.post("/actions/{aid}/status")
-def set_status(aid: int, status: str = Body(..., embed=True), note: str = Body("", embed=True),
-               evidence_note: str | None = Body(None, embed=True), user=Depends(current_user)):
+def set_status(
+    aid: int,
+    status: str = Body(..., embed=True),
+    note: str = Body("", embed=True),
+    evidence_note: str | None = Body(None, embed=True),
+    user=Depends(current_user),
+):
     _task_for(user, aid, update=True)
     try:
         a = actions.set_status(aid, status, user, note, evidence_note)
@@ -501,8 +577,13 @@ def set_status(aid: int, status: str = Body(..., embed=True), note: str = Body("
 
 
 @router.post("/actions/{aid}/measurement")
-def measurement(aid: int, kind: str = Body(..., embed=True), value: float = Body(..., embed=True),
-                evidence: str = Body("", embed=True), user=Depends(current_user)):
+def measurement(
+    aid: int,
+    kind: str = Body(..., embed=True),
+    value: float = Body(..., embed=True),
+    evidence: str = Body("", embed=True),
+    user=Depends(current_user),
+):
     _task_for(user, aid, update=True)
     try:
         a = actions.record_measurement(aid, kind, value, user, evidence)
@@ -529,8 +610,12 @@ def audit_log(limit: int = 100, user=Depends(current_user)):
 
 # ---------------------------------------------------------------- AI
 @router.post("/ask")
-def ask(question: str = Body(..., embed=True), lang: str = Body("en", embed=True),
-        force_fallback: bool = Body(False, embed=True), user=Depends(current_user)):
+def ask(
+    question: str = Body(..., embed=True),
+    lang: str = Body("en", embed=True),
+    force_fallback: bool = Body(False, embed=True),
+    user=Depends(current_user),
+):
     _ready()
     res = assistant.ask(question, user, lang, force_fallback)
     audit(user, "ask", {"question": question[:200], "engine": res["engine"], "passed": res["guard"]["passed"]})
@@ -552,8 +637,11 @@ def brief_pdf(unit_type: str = "district", unit: str | None = None, lang: str = 
     require_view(user, ut, u)
     b = brief.build_brief(ut, u, user, lang)
     audit(user, "brief_pdf", {"unit": u})
-    return Response(brief.brief_pdf(b), media_type="application/pdf",
-                    headers={"Content-Disposition": f'attachment; filename="ShikshaPulse_brief_{u or "state"}.pdf"'})
+    return Response(
+        brief.brief_pdf(b),
+        media_type="application/pdf",
+        headers={"Content-Disposition": f'attachment; filename="ShikshaPulse_brief_{u or "state"}.pdf"'},
+    )
 
 
 @router.get("/llm/status")
@@ -565,6 +653,7 @@ def llm_status(user=Depends(current_user)):
 @router.get("/lab/scenarios")
 def lab_scenarios(user=Depends(current_user)):
     from scenario_lab.generator import list_scenarios
+
     out = list_scenarios()
     for s in out:
         exp = SCENARIO_OUT / s["name"] / "expected.json"
@@ -577,15 +666,23 @@ def lab_scenarios(user=Depends(current_user)):
 
 
 @router.post("/lab/generate")
-def lab_generate(scenario: str = Body(..., embed=True), seed: int | None = Body(None, embed=True),
-                 mess: dict | None = Body(None, embed=True), ingest: bool = Body(True, embed=True),
-                 user=Depends(current_user)):
+def lab_generate(
+    scenario: str = Body(..., embed=True),
+    seed: int | None = Body(None, embed=True),
+    mess: dict | None = Body(None, embed=True),
+    ingest: bool = Body(True, embed=True),
+    user=Depends(current_user),
+):
     if user["role"] not in ("district", "state"):
         raise HTTPException(403, "Scenario Lab is an internal tool for district/state roles")
     if public_demo():
-        raise HTTPException(403, "Scenario Lab is switched off on the public demo so every visitor sees the same "
-                                 "data. Run the project locally to generate other scenarios.")
+        raise HTTPException(
+            403,
+            "Scenario Lab is switched off on the public demo so every visitor sees the same "
+            "data. Run the project locally to generate other scenarios.",
+        )
     from scenario_lab.generator import generate
+
     res = generate(scenario, SCENARIO_OUT, {"seed": seed, "mess": mess or {}})
     runtime.STATE["active_scenario"] = res["scenario"]
     audit(user, "lab_generate", {"scenario": scenario, "seed": seed, "mess": mess})

@@ -3,6 +3,7 @@
 Deliberately not a "worst schools" ranking — each school is flagged with the reasons, and
 missing data is shown as missing rather than counted against the school.
 """
+
 from __future__ import annotations
 
 import numpy as np
@@ -29,7 +30,7 @@ def radar(unit_type: str, unit: str | None, min_flags: int = 2, limit: int = 60)
     a = df[df.academic_year == y0].set_index("udise_code")
     b = df[df.academic_year == y1].set_index("udise_code")
     b = b.join(a[["numeracy", "student_att", "comparable"]].add_suffix("_base"))
-    out, counts = [], {k: 0 for k in RULES}
+    out, counts = [], dict.fromkeys(RULES, 0)
     for code, r in b.iterrows():
         flags, missing = [], []
         comp = bool(r.comparable) and bool(r.comparable_base)
@@ -57,26 +58,49 @@ def radar(unit_type: str, unit: str | None, min_flags: int = 2, limit: int = 60)
         for f in flags:
             counts[f] += 1
         if len(flags) >= min_flags:
-            out.append({
-                "udise_code": code, "school_name": r.school_name, "block": r.block, "district": r.district,
-                "flags": flags, "n_flags": len(flags), "reasons": [RULES[f] for f in flags], "missing": missing,
-                "tier": "priority_support" if len(flags) >= 3 else "watch",
-                "numeracy": r1(r.numeracy), "numeracy_change": r1(r.numeracy - r.numeracy_base)
-                if comp and not pd.isna(r.numeracy_base) else None,
-                "attendance": r1(r.student_att), "attendance_change": r1(r.student_att - r.student_att_base)
-                if not pd.isna(r.student_att) and not pd.isna(r.student_att_base) else None,
-                "maths_vacancy": r1(r.maths_vacancy * 100) if not pd.isna(r.maths_vacancy) else None,
-                "infra": r1(r.infra_index * 100) if not pd.isna(r.infra_index) else None,
-                "teacher_att": r1(r.teacher_att),
-            })
+            out.append(
+                {
+                    "udise_code": code,
+                    "school_name": r.school_name,
+                    "block": r.block,
+                    "district": r.district,
+                    "flags": flags,
+                    "n_flags": len(flags),
+                    "reasons": [RULES[f] for f in flags],
+                    "missing": missing,
+                    "tier": "priority_support" if len(flags) >= 3 else "watch",
+                    "numeracy": r1(r.numeracy),
+                    "numeracy_change": r1(r.numeracy - r.numeracy_base)
+                    if comp and not pd.isna(r.numeracy_base)
+                    else None,
+                    "attendance": r1(r.student_att),
+                    "attendance_change": r1(r.student_att - r.student_att_base)
+                    if not pd.isna(r.student_att) and not pd.isna(r.student_att_base)
+                    else None,
+                    "maths_vacancy": r1(r.maths_vacancy * 100) if not pd.isna(r.maths_vacancy) else None,
+                    "infra": r1(r.infra_index * 100) if not pd.isna(r.infra_index) else None,
+                    "teacher_att": r1(r.teacher_att),
+                }
+            )
     out.sort(key=lambda s: (-s["n_flags"], s["numeracy_change"] if s["numeracy_change"] is not None else 0))
     matrix = {f: int(sum(1 for s in out if f in s["flags"])) for f in RULES}
-    return {"unit_type": unit_type, "unit": unit, "latest_year": y1, "baseline_year": y0, "min_flags": min_flags,
-            "rules": RULES, "low_numeracy_threshold": r1(p25), "n_schools": int(len(b)),
-            "n_flagged": len(out), "n_priority": sum(1 for s in out if s["tier"] == "priority_support"),
-            "flag_counts_all_schools": counts, "flag_counts_flagged": matrix, "schools": out[:limit],
-            "note": "Schools are flagged for support based on multiple indicators, not ranked. Missing data is "
-                    "listed separately and never counted as a flag."}
+    return {
+        "unit_type": unit_type,
+        "unit": unit,
+        "latest_year": y1,
+        "baseline_year": y0,
+        "min_flags": min_flags,
+        "rules": RULES,
+        "low_numeracy_threshold": r1(p25),
+        "n_schools": len(b),
+        "n_flagged": len(out),
+        "n_priority": sum(1 for s in out if s["tier"] == "priority_support"),
+        "flag_counts_all_schools": counts,
+        "flag_counts_flagged": matrix,
+        "schools": out[:limit],
+        "note": "Schools are flagged for support based on multiple indicators, not ranked. Missing data is "
+        "listed separately and never counted as a flag.",
+    }
 
 
 def overlap_matrix(unit_type: str, unit: str | None) -> dict:

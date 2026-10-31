@@ -1,4 +1,5 @@
 """Analytics against ground truth, the Evidence Guard, the fallback engine and the LLM tool loop."""
+
 import json
 from types import SimpleNamespace
 
@@ -9,6 +10,7 @@ from app.auth import persona
 
 def test_diagnosis_finds_planted_signals(warehouse):
     from app.analytics.diagnose import diagnose
+
     exp = warehouse["expected"]["blocks"]
     hits = total = 0
     for block, e in exp.items():
@@ -26,12 +28,14 @@ def test_diagnosis_finds_planted_signals(warehouse):
 
 def test_model_has_no_outcome_leakage(warehouse):
     from app.analytics import expected as ex
+
     assert not set(ex.FEATURES) & ex.OUTCOME_COLUMNS
     assert ex.model_card()["r2_heldout"] > 0.3
 
 
 def test_peer_election_filter(warehouse):
     from app.analytics.peers import ELECTION_DAYS, peers
+
     for b in warehouse["expected"]["election_affected_blocks"]:
         p = peers(b, election_only=True, other_districts=False)
         assert all(x["teacher_days_lost"] >= ELECTION_DAYS for x in p["peers"])
@@ -40,8 +44,10 @@ def test_peer_election_filter(warehouse):
 def test_guard_rejects_invented_number_and_softens_causal_language():
     s = EvidenceStore()
     e = s.add("outcome", "Numeracy change", {"change_pp": -6.7, "baseline": 61.3}, "2022-23 → 2024-25")
-    ans = {"summary": "Numeracy fell 6.7 pp, caused by vacancies; 42.4% of schools hit.",
-           "findings": [{"label": "observed_fact", "text": "Fell from 61.3%.", "evidence": [e]}]}
+    ans = {
+        "summary": "Numeracy fell 6.7 pp, caused by vacancies; 42.4% of schools hit.",
+        "findings": [{"label": "observed_fact", "text": "Fell from 61.3%.", "evidence": [e]}],
+    }
     rep = check(ans, s)
     assert not rep["passed"]
     assert any(u["value"] == "42.4" for u in rep["unverified_numbers"])
@@ -65,6 +71,7 @@ def test_hindi_causal_softening():
 
 def test_fallback_answers_are_grounded(warehouse):
     from app.ai.assistant import ask
+
     user = persona("state-spd")
     for q in ["Why did numeracy fall?", "Which blocks had the largest decline?", "How reliable is the data?"]:
         r = ask(q, user, "en", force_fallback=True)
@@ -83,6 +90,7 @@ def test_llm_tool_loop_with_scripted_model(warehouse, monkeypatch):
     reject it), then answers correctly on the retry."""
     from app.ai import assistant
     from app.ai.llm import LLMClient
+
     client = LLMClient()
     client.api_key, client.disabled = "test", False
     calls = {"n": 0}
@@ -90,18 +98,31 @@ def test_llm_tool_loop_with_scripted_model(warehouse, monkeypatch):
     def fake_chat(messages, tools=None, **kw):
         calls["n"] += 1
         if calls["n"] == 1:
-            tc = SimpleNamespace(id="c1", function=SimpleNamespace(name="diagnose",
-                                                                  arguments=json.dumps({"unit_type": "state"})))
+            tc = SimpleNamespace(
+                id="c1", function=SimpleNamespace(name="diagnose", arguments=json.dumps({"unit_type": "state"}))
+            )
             return _msg(tool_calls=[tc])
         tool_msg = next(m for m in messages if m.get("role") == "tool")
         out = json.loads(tool_msg["content"])
         ev, ch = out["outcome"]["evidence"], out["outcome"]["change_pp"]
         if calls["n"] == 2:
-            return _msg(json.dumps({"summary": f"Changed {ch} pp; 99.9% affected.",
-                                    "findings": [{"label": "observed_fact", "text": f"{ch} pp", "evidence": [ev]}]}))
-        return _msg(json.dumps({"summary": f"Numeracy changed by {ch} pp.",
-                                "findings": [{"label": "observed_fact", "text": f"Change of {ch} pp.",
-                                              "evidence": [ev]}], "next_steps": []}))
+            return _msg(
+                json.dumps(
+                    {
+                        "summary": f"Changed {ch} pp; 99.9% affected.",
+                        "findings": [{"label": "observed_fact", "text": f"{ch} pp", "evidence": [ev]}],
+                    }
+                )
+            )
+        return _msg(
+            json.dumps(
+                {
+                    "summary": f"Numeracy changed by {ch} pp.",
+                    "findings": [{"label": "observed_fact", "text": f"Change of {ch} pp.", "evidence": [ev]}],
+                    "next_steps": [],
+                }
+            )
+        )
 
     monkeypatch.setattr(client, "chat", fake_chat)
     monkeypatch.setattr(assistant, "llm", lambda: client)
@@ -114,10 +135,14 @@ def test_llm_tool_loop_with_scripted_model(warehouse, monkeypatch):
 def test_fallback_grounded_in_all_languages(warehouse):
     from app.ai.assistant import ask
     from app.ai.phrases import LANGS
+
     user = persona("state-spd")
     for lang in LANGS:
-        for q in ["Why did numeracy fall?", "How reliable is the data?", "Which schools have both attendance decline "
-                  "and maths vacancies?"]:
+        for q in [
+            "Why did numeracy fall?",
+            "How reliable is the data?",
+            "Which schools have both attendance decline and maths vacancies?",
+        ]:
             r = ask(q, user, lang, force_fallback=True)
             assert r["guard"]["passed"], (lang, q, r["guard"]["unverified_numbers"], r["guard"]["citation_errors"])
             assert r["lang"] == lang
@@ -126,6 +151,7 @@ def test_fallback_grounded_in_all_languages(warehouse):
 def test_school_level_answer(warehouse):
     from app import db
     from app.ai.assistant import ask
+
     code = db.query("SELECT udise_code FROM schools LIMIT 1")[0]["udise_code"]
     user = {**persona("state-spd"), "role": "headmaster", "scope_type": "school", "scope": code}
     for lang in ("en", "hi", "ta"):
